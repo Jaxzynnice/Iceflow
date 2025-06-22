@@ -127,7 +127,7 @@
             "path": "/maker/qc?url=&nama=&text=",
             "status": "NEW",
             "params": {
-                "url": "Avatar URL",
+                "ava": "Avatar URL",
                 "name": "Name account",
                 "text": "Text of the quick chat"
             }
