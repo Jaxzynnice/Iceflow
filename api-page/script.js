@@ -690,7 +690,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     let isValid = true;
 
                     inputs.forEach(input => {
-                        if (input.dataset.param === 'url') return decodeURIComponent(input.value)
+                        if (input.dataset.param === 'url' && input.value.startsWith('http')) {
+                            return decodeURIComponent(input.value)
+                        }
                         
                         if (!input.value.trim()) {
                             isValid = false;
