@@ -697,20 +697,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                         // Enhanced submit button handler
                         modalRefs.submitBtn.onclick = async () => {
                             const inputs = modalRefs.queryInputContainer.querySelectorAll('input');
-                            const newParams = new URLSearchParams();
+                            let newParams = new URLSearchParams();
                             let isValid = true;
+                            let urlParamValue = '';
 
                             inputs.forEach(input => {
+                                let paramName = input.dataset.param;
                                 let paramValue = input.value.trim();
-                                if (input.dataset.param === 'url' && paramValue.startsWith('http')) {
-                                    try {
-                                        paramValue = decodeURIComponent(paramValue);
-                                    } catch (error) {
-                                        console.error('Failed to decode paramValue');
-                                    }
-                                }
 
-                                if (!input.value.trim()) {
+                                if (!paramValue) {
                                     isValid = false;
                                     input.classList.add('is-invalid');
                                     input.parentElement.classList.add('shake-animation');
@@ -719,23 +714,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     }, 500);
                                 } else {
                                     input.classList.remove('is-invalid');
-                                    newParams.append(input.dataset.param, input.value.trim());
+                                    if (paramName === 'url' && paramValue.startsWith('http')) {
+                                        urlParamValue = paramValue;
+                                    } else {
+                                        newParams.append(paramName, paramValue);
+                                    }
                                 }
                             });
 
                             if (!isValid) {
-                                // Enhanced error message with animation
                                 const errorMsg = document.createElement('div');
                                 errorMsg.className = 'alert alert-danger mt-3 fade-in';
                                 errorMsg.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please fill in all required fields.';
 
-                                // Remove existing error message if any
                                 const existingError = modalRefs.queryInputContainer.querySelector('.alert');
                                 if (existingError) existingError.remove();
 
                                 modalRefs.queryInputContainer.appendChild(errorMsg);
 
-                                // Shake the submit button for feedback
                                 modalRefs.submitBtn.classList.add('shake-animation');
                                 setTimeout(() => {
                                     modalRefs.submitBtn.classList.remove('shake-animation');
@@ -744,13 +740,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 return;
                             }
 
-                            // Enhanced loading animation
                             modalRefs.submitBtn.disabled = true;
                             modalRefs.submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
 
-                            const apiUrlWithParams = `${window.location.origin}${apiPath.split('?')[0]}?${newParams.toString()}`;
+                            let apiUrlWithParams = `${window.location.origin}${apiPath.split('?')[0]}`;
 
-                            // Improved animated transition
+                            let queryString = newParams.toString();
+
+                            if (urlParamValue) {
+                                if (queryString) {
+                                    queryString += `&url=${urlParamValue}`;
+                                } else {
+                                    queryString = `url=${urlParamValue}`;
+                                }
+                            }
+
+                            if (queryString) {
+                                apiUrlWithParams += `?${queryString}`;
+                            }
+
                             modalRefs.queryInputContainer.style.opacity = '0';
                             setTimeout(() => {
                                 modalRefs.queryInputContainer.innerHTML = '';
@@ -758,7 +766,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 modalRefs.submitBtn.classList.add('d-none');
                                 handleApiRequest(apiUrlWithParams, modalRefs, apiName);
                             }, 300);
-                        };
+                        };;
 
                         // Initialize tooltips
                         const tooltips = modalRefs.queryInputContainer.querySelectorAll('[data-bs-toggle="tooltip"]');
