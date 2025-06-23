@@ -694,7 +694,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         modalRefs.queryInputContainer.appendChild(paramContainer);
                         modalRefs.submitBtn.classList.remove('d-none');
 
-                        // Enhanced submit button handlerr
+                        // Enhanced submit button handler
                         modalRefs.submitBtn.onclick = async () => {
                             const inputs = modalRefs.queryInputContainer.querySelectorAll('input');
                             let newParams = new URLSearchParams();
@@ -894,6 +894,54 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                             // Show notification
                             showToast('Image download started!', 'success');
+                        };
+
+                        modalRefs.content.appendChild(downloadBtn);
+                    } else if (contentType && contentType.startsWith('video/')) {
+                        // Handle video response with enhanced animation
+                        const blob = await response.blob();
+                        const videoUrl = URL.createObjectURL(blob);
+
+                        const video = document.createElement('video');
+                        video.src = videoUrl;
+                        video.controls = true;
+                        video.className = 'response-image fade-in';
+                        video.style.maxWidth = '100%';
+                        video.style.height = 'auto';
+                        video.style.borderRadius = 'var(--border-radius)';
+                        video.style.boxShadow = 'var(--shadow)';
+                        video.style.transition = 'var(--transition)';
+
+                        // Add hover effect
+                        video.onmouseover = () => {
+                            video.style.transform = 'scale(1.02)';
+                            video.style.boxShadow = 'var(--hover-shadow)';
+                        };
+
+                        video.onmouseout = () => {
+                            video.style.transform = 'scale(1)';
+                            video.style.boxShadow = 'var(--shadow)';
+                        };
+
+                        modalRefs.content.innerHTML = '';
+                        modalRefs.content.appendChild(video);
+
+                        // Show download button for images
+                        const downloadBtn = document.createElement('button');
+                        downloadBtn.className = 'btn btn-primary mt-3';
+                        downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download Video';
+                        downloadBtn.style.width = '100%';
+
+                        downloadBtn.onclick = () => {
+                            const link = document.createElement('a');
+                            link.href = videoUrl;
+                            link.download = `${apiName.toLowerCase().replace(/\s+/g, '-')}.${blob.type.split('/')[1]}`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+
+                            // Show notification
+                            showToast('Video download started!', 'success');
                         };
 
                         modalRefs.content.appendChild(downloadBtn);
