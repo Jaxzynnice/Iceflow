@@ -694,7 +694,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         modalRefs.queryInputContainer.appendChild(paramContainer);
                         modalRefs.submitBtn.classList.remove('d-none');
 
-                        // Enhanced submit button handler
+                        // Enhanced submit button handlerr
                         modalRefs.submitBtn.onclick = async () => {
                             const inputs = modalRefs.queryInputContainer.querySelectorAll('input');
                             let newParams = new URLSearchParams();
