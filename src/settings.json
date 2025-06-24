@@ -192,10 +192,10 @@
         "items": [{
             "name": "Screenshot Website",
             "desc": "Screenshot any site",
-            "path": "/tools/ssweb?url=",
+            "path": "/tools/ssweb?url=&device=",
             "status": "NEW",
             "params": {
-                "url": "Input URL",
+                "url": "Input any URL",
                 "device": "Mobile or Dekstop"
             }
         },
