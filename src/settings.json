@@ -1,6 +1,6 @@
 {
     "name": "Iceflow API",
-    "version": "v1.1.7",
+    "version": "v2.3.4",
     "description": "Unlock the power of seamless integration with our comprehensive Koyuki Iceflow API suite. Designed for developers, by developers.",
     "bannerImage": "/src/banner.png",
     "header": {
@@ -195,7 +195,8 @@
             "path": "/tools/ssweb?url=",
             "status": "NEW",
             "params": {
-                "url": "Input URL"
+                "url": "Input URL",
+                "device": "Mobile or Dekstop"
             }
         },
         {
