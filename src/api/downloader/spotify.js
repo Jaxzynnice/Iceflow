@@ -63,17 +63,6 @@ module.exports = function(app) {
                 
                 return res.end(buffer);
             }
-            
-            // Jika ingin mengembalikan JSON dengan metadata
-            res.status(200).json({
-                status: true,
-                result: {
-                    ...result,
-                    // Tambahkan informasi content type
-                    contentType: 'audio/mpeg'
-                }
-            });
-            
         } catch (error) {
             res.status(500).json({
                 status: false,
