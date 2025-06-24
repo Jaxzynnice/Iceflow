@@ -39,7 +39,7 @@ module.exports = function(app) {
             }
             const result = await ssWeb(url, device);
             res.writeHead(200, {
-                'Content-Type': 'image/png',
+                'Content-Type': 'image/jpeg',
                 'Content-Length': result.length
             });
             res.end(result);
