@@ -951,7 +951,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const audioUrl = URL.createObjectURL(blob);
 
                         const audio = document.createElement('audio');
-                        audio.src = imageUrl;
+                        audio.src = audioUrl;
                         audio.controls = true;
                         audio.className = 'response-audio fade-in';
                         audio.style.width = '100%';
