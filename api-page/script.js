@@ -945,6 +945,43 @@ document.addEventListener('DOMContentLoaded', async () => {
                         };
 
                         modalRefs.content.appendChild(downloadBtn);
+                    } else if (contentType && contentType.startsWith('audio/')) {
+                        // Handle audio response with enhanced animation
+                        const blob = await response.blob();
+                        const audioUrl = URL.createObjectURL(blob);
+
+                        const audio = document.createElement('audio');
+                        audio.src = audioUrl;
+                        audio.controls = true;
+                        audio.type = 'audio/ogg';
+                        audio.preload = 'auto';
+                        audio.className = 'response-audio fade-in';
+                        audio.style.width = '100%';
+                        audio.style.borderRadius = 'var(--border-radius)';
+                        audio.style.boxShadow = 'var(--shadow)';
+
+                        modalRefs.content.innerHTML = '';
+                        modalRefs.content.appendChild(audio);
+
+                        // Show download button for audio
+                        const downloadBtn = document.createElement('button');
+                        downloadBtn.className = 'btn btn-primary mt-3';
+                        downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download Audio';
+                        downloadBtn.style.width = '100%';
+
+                        downloadBtn.onclick = () => {
+                            const link = document.createElement('a');
+                            link.href = audioUrl;
+                            link.download = `${apiName.toLowerCase().replace(/\s+/g, '-')}.${blob.type.split('/')[1]}`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+
+                            // Show notification
+                            showToast('Audio download started!', 'success');
+                        };
+
+                        modalRefs.content.appendChild(downloadBtn);
                     } else {
                         // Handle JSON response with enhanced syntax highlighting and animation
                         const data = await response.json();
