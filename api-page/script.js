@@ -878,7 +878,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         modalRefs.content.innerHTML = '';
                         modalRefs.content.appendChild(img);
 
-                        // Show download button for images
+                        // Show download button for image
                         const downloadBtn = document.createElement('button');
                         downloadBtn.className = 'btn btn-primary mt-3';
                         downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download Image';
@@ -926,7 +926,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         modalRefs.content.innerHTML = '';
                         modalRefs.content.appendChild(video);
 
-                        // Show download button for images
+                        // Show download button for video
                         const downloadBtn = document.createElement('button');
                         downloadBtn.className = 'btn btn-primary mt-3';
                         downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download Video';
