@@ -26,11 +26,11 @@ module.exports = function(app) {
       const duration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
       return {
-        title: data.title.trim() || 'Unknown',
-        author: data.artists.trim() || 'Unknown',
+        title: data.title || 'Unknown',
+        author: data.artists || 'Unknown',
         duration: data.duration_ms ? duration : 'Unknown',
-        thumbnail: data.cover.trim() || null,
-        audio: result.data.link.trim()
+        thumbnail: data.cover || null,
+        audio: result.data.link
       };
     }
 
