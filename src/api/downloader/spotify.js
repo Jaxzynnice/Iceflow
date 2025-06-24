@@ -26,11 +26,11 @@ module.exports = function(app) {
       const duration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
       return {
-        title: data.title || 'Unknown',
-        author: data.artists || 'Unknown',
+        title: data.title.trim() || 'Unknown',
+        author: data.artists.trim() || 'Unknown',
         duration: data.duration_ms ? duration : 'Unknown',
-        thumbnail: data.cover || null,
-        audio: result.data.link
+        thumbnail: data.cover.trim() || null,
+        audio: result.data.link.trim()
       };
     }
 
@@ -44,25 +44,19 @@ module.exports = function(app) {
                 });
             }
             
-            const result = await spotifyDl(url);
-            
-            // Jika ingin mengembalikan audio langsung (stream)
-            if (req.query.direct) {
-                const audioResponse = await axios.get(result.audio, {
-                    responseType: 'arraybuffer'
-                });
+            const request = await spotifyDl(url);
+            const result = await axios.get(request.audio, {
+                responseType: 'arraybuffer'
+            });
                 
-                const buffer = Buffer.from(audioResponse.data);
+            const audio = Buffer.from(result.data);
+            res.writeHead(200, {
+                'Content-Type': 'audio/ogg',
+                'Content-Length': audio.length,
+                'Content-Disposition': `attachment; filename="${request.title}.mp3"`
+            });
                 
-                // Set header untuk audio/mpeg (bisa disesuaikan dengan format sebenarnya)
-                res.writeHead(200, {
-                    'Content-Type': 'audio/mpeg',
-                    'Content-Length': buffer.length,
-                    'Content-Disposition': `attachment; filename="${encodeURIComponent(result.title)}.mp3"`
-                });
-                
-                return res.end(buffer);
-            }
+            return res.end(audio);
         } catch (error) {
             res.status(500).json({
                 status: false,
