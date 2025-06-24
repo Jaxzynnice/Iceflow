@@ -958,8 +958,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                         audio.style.borderRadius = 'var(--border-radius)';
                         audio.style.boxShadow = 'var(--shadow)';
 
+                        // Create container for better styling
+                        const audioContainer = document.createElement('div');
+                        audioContainer.className = 'audio-container';
+                        audioContainer.appendChild(audio);
+
                         modalRefs.content.innerHTML = '';
-                        modalRefs.content.appendChild(audio);
+                        modalRefs.content.appendChild(audioContainer);
 
                         // Show download button for audio
                         const downloadBtn = document.createElement('button');
