@@ -946,14 +946,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         modalRefs.content.appendChild(downloadBtn);
                     } else if (contentType && contentType.startsWith('audio/')) {
-                        // Handle audio response with enhanced animationn
+                        // Handle audio response with enhanced animation
                         const blob = await response.blob();
                         const audioUrl = URL.createObjectURL(blob);
 
                         const audio = document.createElement('audio');
                         audio.src = audioUrl;
                         audio.controls = true;
-                        audio.type = 'audio/ogg';
                         audio.preload = 'auto';
                         audio.className = 'response-audio fade-in';
                         audio.style.width = '100%';
