@@ -36,20 +36,44 @@ module.exports = function(app) {
 
     app.get('/downloader/spotify', async (req, res) => {
         try {
-            const {
-                url
-            } = req.query;
+            const { url } = req.query;
             if (!url) {
                 return res.status(400).json({
                     status: false,
                     message: 'URL Required'
                 });
             }
+            
             const result = await spotifyDl(url);
+            
+            // Jika ingin mengembalikan audio langsung (stream)
+            if (req.query.direct) {
+                const audioResponse = await axios.get(result.audio, {
+                    responseType: 'arraybuffer'
+                });
+                
+                const buffer = Buffer.from(audioResponse.data);
+                
+                // Set header untuk audio/mpeg (bisa disesuaikan dengan format sebenarnya)
+                res.writeHead(200, {
+                    'Content-Type': 'audio/mpeg',
+                    'Content-Length': buffer.length,
+                    'Content-Disposition': `attachment; filename="${encodeURIComponent(result.title)}.mp3"`
+                });
+                
+                return res.end(buffer);
+            }
+            
+            // Jika ingin mengembalikan JSON dengan metadata
             res.status(200).json({
                 status: true,
-                result
+                result: {
+                    ...result,
+                    // Tambahkan informasi content type
+                    contentType: 'audio/mpeg'
+                }
             });
+            
         } catch (error) {
             res.status(500).json({
                 status: false,
