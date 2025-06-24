@@ -133,10 +133,10 @@
         "items": [{
             "name": "Quotely",
             "desc": "Generate whatsapp quick chat",
-            "path": "/maker/qc?avatar=&name=&text=",
+            "path": "/maker/qc?url=&name=&text=",
             "status": "NEW",
             "params": {
-                "avatar": "Avatar URL",
+                "url": "Input Avatar URL",
                 "name": "Name account",
                 "text": "Text of the quick chat"
             }
