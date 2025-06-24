@@ -946,7 +946,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         modalRefs.content.appendChild(downloadBtn);
                     } else if (contentType && contentType.startsWith('audio/')) {
-                        // Handle audio response with enhanced animation
+                        // Handle audio response with enhanced animationn
                         const blob = await response.blob();
                         const audioUrl = URL.createObjectURL(blob);
 
