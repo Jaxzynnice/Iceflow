@@ -51,7 +51,7 @@ module.exports = function(app) {
                 
             const audio = Buffer.from(result.data);
             res.writeHead(200, {
-                'Content-Type': 'audio/ogg',
+                'Content-Type': 'audio/mp3',
                 'Content-Length': audio.length,
                 'Content-Disposition': `attachment; filename="${request.title}.mp3"`
             });
