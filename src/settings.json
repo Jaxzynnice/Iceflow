@@ -85,7 +85,7 @@
         "items": [{
             "name": "Facebook",
             "desc": "Facebook Video Downloader",
-            "path": "/downloder/facebook?url=",
+            "path": "/downloader/facebook?url=",
             "status": "NEW",
             "params": {
                 "url": "Enter a Facebook URL"
@@ -94,7 +94,7 @@
         {
             "name": "Instagram",
             "desc": "Instagram Video Downloader",
-            "path": "/downloder/instagram?url=",
+            "path": "/downloader/instagram?url=",
             "status": "NEW",
             "params": {
                 "url": "Enter a Instagram URL"
@@ -103,7 +103,7 @@
         {
             "name": "Spotify",
             "desc": "Spotify Music Downloader",
-            "path": "/downloder/spotify?url=",
+            "path": "/downloader/spotify?url=",
             "status": "NEW",
             "params": {
                 "url": "Enter a Spotify URL"
@@ -112,7 +112,7 @@
         {
             "name": "Threads",
             "desc": "Threads Video Downloader",
-            "path": "/downloder/threads?url=",
+            "path": "/downloader/threads?url=",
             "status": "NEW",
             "params": {
                 "url": "Enter a Threads URL"
@@ -121,7 +121,7 @@
         {
             "name": "Tiktok",
             "desc": "Tiktok Video Downloader",
-            "path": "/downloder/tiktok?url=",
+            "path": "/downloader/tiktok?url=",
             "status": "NEW",
             "params": {
                 "url": "Enter a Tiktok URL"
