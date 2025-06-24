@@ -1145,17 +1145,6 @@ input:checked + .slider:before {
     color: var(--text-color);
 }
 
-.response-audio {
-    display: block;
-    margin: 0 auto;
-}
-
-.audio-container {
-    padding: 20px;
-    margin-bottom: 15px;
-    border-radius: var(--border-radius);
-}
-
 .copy-btn {
     background: none;
     border: none;
