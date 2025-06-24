@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 module.exports = function(app) {
-    async function ssweb(url, device = 'desktop') {
+    async function ssWeb(url, device) {
       try {
         const fullPage = device.includes('dekstop');
         const response = await axios.post('https://api.magickimg.com/generate/website-screenshot', {
@@ -18,7 +18,7 @@ module.exports = function(app) {
             responseType: 'arraybuffer'
           });
 
-        return response.data
+        return response.data;
       } catch (error) {
         console.error(error);
         throw new Error(error.message);
@@ -31,13 +31,13 @@ module.exports = function(app) {
                 url,
                 device
             } = req.query;
-            if (!url) {
+            if (!url || !device) {
                 return res.status(400).json({
                     status: false,
                     message: 'URL or Device Required'
                 });
             }
-            const result = await ssweb(url, device);
+            const result = await ssWeb(url, device);
             res.writeHead(200, {
                 'Content-Type': 'image/png',
                 'Content-Length': result.length
