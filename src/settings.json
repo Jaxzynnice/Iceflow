@@ -101,6 +101,15 @@
             }
         },
         {
+            "name": "Spotify",
+            "desc": "Spotify Music Downloader",
+            "path": "/downloder/spotify?url=",
+            "status": "NEW",
+            "params": {
+                "url": "Enter a Spotify URL"
+            }
+        },
+        {
             "name": "Threads",
             "desc": "Threads Video Downloader",
             "path": "/downloder/threads?url=",
@@ -181,6 +190,15 @@
     {
         "name": "Tools",
         "items": [{
+            "name": "Screenshot Website",
+            "desc": "Screenshot any site",
+            "path": "/tools/ssweb?url=",
+            "status": "NEW",
+            "params": {
+                "url": "Input URL"
+            }
+        },
+        {
             "name": "YouTube Monetization",
             "desc": "Monet Checker",
             "path": "/tools/ytmonet?url=",
