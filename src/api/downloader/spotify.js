@@ -1,30 +1,8 @@
 const axios = require('axios');
 
 module.exports = function(app) {
-    function msToMinutes(ms) {
-      const totalSeconds = Math.floor(ms / 1000);
-      const minutes = Math.floor(totalSeconds / 60);
-      const seconds = totalSeconds % 60;
-    
-      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    }
-
     async function spotifyDl(url) {
-      const metaResponse = await axios.post('https://spotiydownloader.com/api/metainfo', { url }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Origin': 'https://spotiydownloader.com',
-          'Referer': 'https://spotiydownloader.com/id',
-          'User-Agent': 'Mozilla/5.0'
-        }
-      })
-
-      const meta = metaResponse.data;
-      if (!meta || !meta.success || !meta.id) {
-        throw new Error('fetching failed');
-      };
-
-      const dlResponse = await axios.post('https://spotiydownloader.com/api/download', { id: meta.id }, {
+      const { data } = await axios.post('https://spotiydownloader.com/api/metainfo', { url }, {
         headers: {
           'Content-Type': 'application/json',
           'Origin': 'https://spotiydownloader.com',
@@ -33,17 +11,26 @@ module.exports = function(app) {
         }
       });
 
-      const result = dlResponse.data;
-      if (!result || !result.success || !result.link) {
-        throw new Error('fail to get url');
-      };
+      const result = await axios.post('https://spotiydownloader.com/api/download', { id: data.id }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Origin': 'https://spotiydownloader.com',
+          'Referer': 'https://spotiydownloader.com/id',
+          'User-Agent': 'Mozilla/5.0'
+        }
+      });
+    
+      const totalSeconds = Math.floor(data.duration_ms / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      const duration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
       return {
-        title: meta.title || 'Unknown',
-        author: meta.artists || 'Unknown',
-        duration: meta.duration_ms ? msToMinutes(meta.duration_ms) : 'Unknown',
-        thumbnail: meta.cover || null,
-        audio: result.link
+        title: data.title || 'Unknown',
+        author: data.artists || 'Unknown',
+        duration: data.duration_ms ? duration : 'Unknown',
+        thumbnail: data.cover || null,
+        audio: result.data.link
       };
     }
 
