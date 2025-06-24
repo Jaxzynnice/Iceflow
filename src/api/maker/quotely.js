@@ -39,14 +39,14 @@ module.exports = function(app) {
 
     app.get('/maker/qc', async (req, res) => {
         try {
-            const { avatar, name, text } = req.query;
-            if (!avatar || !name || !text) {
+            const { url, name, text } = req.query;
+            if (!url || !name || !text) {
                 return res.status(400).json({
                     status: false,
                     message: 'Missing Input Parameters'
                 });
             }
-            const img = await qc(avatar, name, text);
+            const img = await qc(url, name, text);
             res.writeHead(200, {
                 'Content-Type': 'image/png',
                 'Content-Length': img.length
