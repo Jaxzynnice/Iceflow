@@ -45,29 +45,17 @@ module.exports = function(app) {
             }
             
             const request = await spotifyDl(url);
-            if (req.query.direct) {
-                const audioResponse = await axios.get(request.audio, {
-                    responseType: 'arraybuffer'
-                });
-                
-                const buffer = Buffer.from(audioResponse.data);
-                res.writeHead(200, {
-                    'Content-Type': 'audio/mpeg',
-                    'Content-Length': buffer.length,
-                    'Content-Disposition': `attachment; filename="${result.title}.mp3"`
-                });
-                
-                return res.end(buffer);
-            }
-            res.status(200).json({
-                status: true,
-                result: {
-                    ...result,
-                    // Tambahkan informasi content type
-                    contentType: 'audio/mpeg'
-                }
+            const result = await axios.get(request.audio, {
+                responseType: 'arraybuffer'
             });
-            
+                
+            const buffer = Buffer.from(result.data);
+            res.writeHead(200, {
+                'Content-Type': 'audio/mpeg',
+                'Content-Length': buffer.length,
+                'Content-Disposition': `attachment; filename="${result.title}.mp3"`
+            });
+            res.end(buffer);
         } catch (error) {
             res.status(500).json({
                 status: false,
