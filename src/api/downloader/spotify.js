@@ -48,16 +48,13 @@ module.exports = function(app) {
             const result = await axios.get(request.audio, {
                 responseType: 'arraybuffer'
             });
-            const audio = Buffer.from(result.data);
-                
-            // Set header untuk audio/mpeg (bisa disesuaikan dengan format sebenarnya)
+            const buffer = Buffer.from(result.data);
             res.writeHead(200, {
-                'Content-Type': 'audio/mpeg',
-                'Content-Length': audio.length,
+                'Content-Type': 'audio/ogg',
+                'Content-Length': buffer.length,
                 'Content-Disposition': `attachment; filename="${request.title}.mp3"`
             });
-                
-            res.end(audio);
+            res.end(buffer);
         } catch (error) {
             res.status(500).json({
                 status: false,
