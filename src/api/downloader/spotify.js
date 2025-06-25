@@ -36,25 +36,20 @@ module.exports = function(app) {
 
     app.get('/downloader/spotify', async (req, res) => {
         try {
-            const { url } = req.query;
+            const {
+                url
+            } = req.query;
             if (!url) {
                 return res.status(400).json({
                     status: false,
                     message: 'URL Required'
                 });
             }
-            
-            const request = await spotifyDl(url);
-            const result = await axios.get(request.audio, {
-                responseType: 'arraybuffer'
+            const result = await spotifyDl(url);
+            res.status(200).json({
+                status: true,
+                result
             });
-            const buffer = Buffer.from(result.data);
-            res.writeHead(200, {
-                'Content-Type': 'audio/ogg',
-                'Content-Length': buffer.length,
-                'Content-Disposition': `attachment; filename="${request.title}.mp3"`
-            });
-            res.end(buffer);
         } catch (error) {
             res.status(500).json({
                 status: false,
