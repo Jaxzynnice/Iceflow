@@ -45,19 +45,19 @@ module.exports = function(app) {
             }
             
             const request = await spotifyDl(url);
-            const audio = await axios.get(request.audio, {
+            const result = await axios.get(request.audio, {
                 responseType: 'arraybuffer'
             });
-            const buffer = Buffer.from(audio.data);
+            const audio = Buffer.from(result.data);
                 
             // Set header untuk audio/mpeg (bisa disesuaikan dengan format sebenarnya)
             res.writeHead(200, {
                 'Content-Type': 'audio/mpeg',
-                'Content-Length': buffer.length,
+                'Content-Length': audio.length,
                 'Content-Disposition': `attachment; filename="${request.title}.mp3"`
             });
                 
-            res.end(buffer);
+            res.end(audio);
         } catch (error) {
             res.status(500).json({
                 status: false,
