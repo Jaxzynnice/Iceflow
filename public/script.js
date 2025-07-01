@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         // Fetch settings with improved error handling
-        const settingsResponse = await fetch('/src/settings.json');
+        const settingsResponse = await fetch('/src/routers.json');
 
         if (!settingsResponse.ok) {
             throw new Error(`Failed to load settings: ${settingsResponse.status} ${settingsResponse.statusText}`);
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Add loading animation and error handling
             dynamicImage.onerror = () => {
-                dynamicImage.src = '/api/src/banner.png'; // Fallback image
+                dynamicImage.src = '/public/img/banner.png'; // Fallback image
                 showToast('Failed to load banner image, using default', 'error');
             };
 
