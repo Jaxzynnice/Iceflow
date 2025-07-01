@@ -57,6 +57,11 @@ module.exports = function(app) {
                         status: false,
                         message: 'Apikey Required'
                     });
+                } else if (apikey !== set.apiSettings.apikey) {
+                    return res.status(400).json({
+                        status: false,
+                        message: 'Apikey Invalid'
+                    });
                 }
                 const message = await felo(text);
                 res.status(200).json({
