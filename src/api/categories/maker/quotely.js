@@ -45,29 +45,29 @@ module.exports = function(app) {
                 text,
                 apikey
             } = req.query;
-            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
+            const { data } = await axios.get('https://iceflow.biz.id/src/routers.json');
             if (!url) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'URL Required'
                 });
             } else if (!name) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'Name Required'
                 });
             } else if (!text) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'Text Required'
                 });
             } else if (!apikey) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'Apikey Required'
                 });
             } else if (apikey !== data.apiSettings.apikey[0]) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'Apikey Invalid'
                 });
@@ -80,7 +80,7 @@ module.exports = function(app) {
             });
             res.end(img);
         } catch (error) {
-            console.error("Error in /maker/quotely route:", error);
+            console.error('Error in /maker/quotely route:', error);
             res.status(500).json({
                 status: false,
                 message: error.message
