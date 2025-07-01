@@ -30,21 +30,38 @@ module.exports = function(app) {
         try {
             const {
                 text,
-                theme
+                theme,
+                apikey
             } = req.query;
+            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
             const availableThemes = ['white', 'black', 'green', 'blue', 'strike'];
-            if (!text || !theme) {
+            if (!text) {
                 res.status(400).json({
                     status: false,
-                    message: 'Text or Theme Required'
-                })
+                    message: 'Text Required'
+                })(
+            } else if (!theme) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Theme Required'
+                });
+            } else if (!apikey) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Apikey Required'
+                });
             } else if (!availableThemes.includes(theme.toLowerCase())) {
                 res.status(400).json({
                     status: false,
-                    message: 'Theme not available',
+                    message: 'Theme not Available',
                     availableThemes
                 });
                 return
+            } else if (apikey !== data.apiSettings.apikey[0]) {
+                return res.status(400).json({
+                    status: false,
+                    message: 'Apikey Invalid'
+                });
             }
 
             const resp = await playwright(`
