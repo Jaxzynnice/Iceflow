@@ -16,7 +16,7 @@ module.exports = function(app) {
     app.get('/random/meme', async (req, res) => {
         try {
             const { apikey } = req.query;
-            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
+            const { data } = await axios.get('https://iceflow.biz.id/src/routers.json');
             if (!apikey) {
                 res.status(400).json({
                     status: false,
