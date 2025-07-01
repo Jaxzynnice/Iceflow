@@ -20,19 +20,19 @@ module.exports = function(app) {
                 prompt,
                 apikey
             } = req.query;
-            const { data } = await axios.get('https://iceflow.bi.id/src/routes.json');
+            const { data } = await axios.get('https://iceflow.biz.id/src/routers.json');
             if (!prompt) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'Text Required'
                 });
             } else if (!apikey) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'Apikey Required'
                 });
             } else if (apikey !== data.apiSettings.apikey) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'Apikey Invalid'
                 });
@@ -45,7 +45,7 @@ module.exports = function(app) {
             });
             res.end(img);
         } catch (error) {
-            console.error(`Error on route aiimg/flux: ${error}`);
+            console.error('Error in /aiimg/flux route:', error);
             res.status(500).json({
                 status: false,
                 message: error.message
