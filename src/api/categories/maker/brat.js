@@ -33,7 +33,7 @@ module.exports = function(app) {
                 theme,
                 apikey
             } = req.query;
-            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
+            const { data } = await axios.get('https://iceflow.biz.id/src/routers.json');
             const availableThemes = ['white', 'black', 'green', 'blue', 'strike'];
             if (!text) {
                 res.status(400).json({
@@ -121,7 +121,7 @@ module.exports = function(app) {
             });
             res.end(img);
         } catch (error) {
-            console.error("Error in /maker/brat route:", error);
+            console.error('Error in /maker/brat route:', error);
             res.status(500).json({
                 status: false,
                 message: error.message
