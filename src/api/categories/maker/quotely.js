@@ -39,13 +39,40 @@ module.exports = function(app) {
 
     app.get('/maker/quotely', async (req, res) => {
         try {
-            const { url, name, text } = req.query;
-            if (!url || !name || !text) {
+            const {
+                url,
+                name,
+                text,
+                apikey
+            } = req.query;
+            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
+            if (!url) {
                 return res.status(400).json({
                     status: false,
-                    message: 'Missing Input Parameters'
+                    message: 'URL Required'
+                });
+            } else if (!name) {
+                return res.status(400).json({
+                    status: false,
+                    message: 'Name Required'
+                });
+            } else if (!text) {
+                return res.status(400).json({
+                    status: false,
+                    message: 'Text Required'
+                });
+            } else if (!apikey) {
+                return res.status(400).json({
+                    status: false,
+                    message: 'Apikey Required'
+                });
+            } else if (apikey !== data.apiSettings.apikey[0]) {
+                return res.status(400).json({
+                    status: false,
+                    message: 'Apikey Invalid'
                 });
             }
+            
             const img = await qc(url, name, text);
             res.writeHead(200, {
                 'Content-Type': 'image/png',
