@@ -1,11 +1,26 @@
+const axios = require('axios');
+const yts = require('yt-search');
+
 module.exports = function(app) {
-    const yts = require('yt-search');
     app.get('/search/youtube', async (req, res) => {
-        const { q } = req.query;
-        if (!q) {
-            return res.status(400).json({ status: false, error: 'Query is required' });
-        }
         try {
+            const {
+                q,
+                apikey
+            } = req.query;
+            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
+            if (!apikey) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Apikey Required'
+                });
+            } else if (apikey !== data.apiSettings.apikey[0]) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Apikey Invalid'
+                });
+            }
+            
             const ytResults = await yts.search(q);
             const ytTracks = ytResults.videos.map(video => ({
                 title: video.title,
@@ -19,7 +34,11 @@ module.exports = function(app) {
                 result: ytTracks
             });
         } catch (error) {
-            res.status(500).json({ status: false, error: error.message });
+            console.error('Error in /search/youtube route:', error);
+            res.status(500).json({
+                status: false,
+                error: error.message
+            });
         }
     });
 }
