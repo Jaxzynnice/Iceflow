@@ -15,6 +15,20 @@ module.exports = function(app) {
     
     app.get('/random/meme', async (req, res) => {
         try {
+            const { apikey } = req.query;
+            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
+            if (!apikey) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Apikey Required'
+                });
+            } else if (apikey !== set.apiSettings.apikey[0]) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Apikey Invalid'
+                });
+            }
+            
             const img = await meme();
             res.writeHead(200, {
                 'Content-Type': 'image/png',
@@ -22,6 +36,7 @@ module.exports = function(app) {
             });
             res.end(img);
         } catch (error) {
+            console.error('Error in /random/meme route:', error);
             res.status(500).json({
                 status: false,
                 message: error.message
