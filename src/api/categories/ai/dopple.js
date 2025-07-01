@@ -35,7 +35,7 @@ module.exports = function(app) {
 
     app.get('/ai/dopple', async (req, res) => {
         try {
-            const settings = await fetch('https://iceflow.biz.id/src/routes.json');
+            const settings = await fetch('https://iceflow.biz.id/src/routers.json');
             const set = await settings.json();
             const {
                 text,
@@ -64,7 +64,7 @@ module.exports = function(app) {
                 message
             });
         } catch (error) {
-            console.error("Error in /ai/dopple route:", error);
+            console.error('Error in /ai/dopple route:', error);
             res.status(500).json({
                 status: false,
                 message: error.message
