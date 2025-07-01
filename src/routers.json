@@ -2,7 +2,7 @@
     "name": "Iceflow API",
     "version": "v2.3.4",
     "description": "Unlock the power of seamless integration with our comprehensive Koyuki Iceflow API suite. Designed for developers, by developers.",
-    "bannerImage": "/src/banner.png",
+    "bannerImage": "/public/img/banner.png",
     "header": {
         "status": "Free!"
     },
@@ -14,58 +14,51 @@
         "name": "AI (Artificial Intelligence)",
         "items": [{
             "name": "Dopple AI",
-            "desc": "Talk with Dopple AI",
+            "desc": "Create Conversation with Dopple AI",
             "path": "/ai/dopple?text=&apikey=",
-            "status": "UPDATE",
+            "status": "ACTIVE",
             "params": {
-                "text": "Text for Dopple AI to respond to",
-                "apikey": "The apikey is ice-api"
+                "text": "Enter Text",
+                "apikey": "Enter Apikey"
             }
         },
         {
             "name": "Felo AI",
-            "desc": "Talk with Felo AI",
-            "path": "/ai/felo?text=",
-            "status": "MAINTENANCE",
+            "desc": "Create Conversation with Felo AI",
+            "path": "/ai/felo?text=&apikey=",
+            "status": "ACTIVE",
             "params": {
-                "text": "Text for Felo AI to respond to"
+                "text": "Enter Text"
             }
         },
         {
             "name": "Koyuki AI",
-            "desc": "Talk with Koyuki AI",
-            "path": "/ai/koyuki?text=",
-            "status": "NEW",
+            "desc": "Create Conversation with Koyuki AI",
+            "path": "/ai/koyuki?text=&apikey=",
+            "status": "ACTIVE",
             "params": {
-                "text": "Text for Koyuki Iceflow to respond to"
+                "text": "Enter Text",
+                "apikey": "Enter Apikey"
             }
         },
         {
             "name": "Lumin AI",
-            "desc": "Talk with Lumin AI",
-            "path": "/ai/lumin?text=",
+            "desc": "Create Conversation with Lumin AI",
+            "path": "/ai/lumin?text=&apikey=",
             "status": "ACTIVE",
             "params": {
-                "text": "Text for Lumin AI to respond to"
+                "text": "Enter Text",
+                "apikey": "Enter Apikey"
             }
         },
         {
             "name": "Venice AI",
-            "desc": "Talk with Felo AI",
-            "path": "/ai/venice?text=",
+            "desc": "Create Conversation with Venice AI",
+            "path": "/ai/venice?text=&apikey=",
             "status": "ACTIVE",
             "params": {
-                "text": "Text for Venice AI to respond to"
-            }
-        },
-        {
-            "name": "HydroMind",
-            "desc": "See the list of supported AI models here: https://mind.hydrooo.web.id",
-            "path": "/ai/hydromind?text=&model=",
-            "status": "ERROR",
-            "params": {
-                "text": "Teks atau perintah untuk chat AI",
-                "model":"1See the list of supported AI models here: https://mind.hydrooo.web.id"
+                "text": "Enter Text",
+                "apikey": "Enter Apikey"
             }
         }]
     },
@@ -73,11 +66,12 @@
         "name": "AI Image",
         "items": [{
             "name": "Flux",
-            "desc": "Generate image with Flux",
-            "path": "/aiimg/flux?prompt=",
-            "status": "NEW",
+            "desc": "Generate Images with Flux",
+            "path": "/aiimg/flux?prompt=&apikey=",
+            "status": "ACTIVE",
             "params": {
-                "prompt": "Enter a prompt"
+                "prompt": "Enter Prompt",
+                "apikey": "Enter Apikey"
             }
         }]
     },
@@ -86,46 +80,51 @@
         "items": [{
             "name": "Facebook",
             "desc": "Facebook Video Downloader",
-            "path": "/downloader/facebook?url=",
-            "status": "NEW",
+            "path": "/downloader/facebook?url=&apikey=",
+            "status": "ACTIVE",
             "params": {
-                "url": "Enter a Facebook URL"
+                "url": "Enter Facebook URL",
+                "apikey": "Enter Apikey"
             }
         },
         {
             "name": "Instagram",
             "desc": "Instagram Video Downloader",
-            "path": "/downloader/instagram?url=",
-            "status": "NEW",
+            "path": "/downloader/instagram?url=&apikey=",
+            "status": "ACTIVE",
             "params": {
-                "url": "Enter a Instagram URL"
+                "url": "Enter Instagram URL",
+                "apikey": "Enter Apikey"
             }
         },
         {
             "name": "Spotify",
             "desc": "Spotify Music Downloader",
-            "path": "/downloader/spotify?url=",
-            "status": "NEW",
+            "path": "/downloader/spotify?url=&apikey=",
+            "status": "ACTIVE",
             "params": {
-                "url": "Enter a Spotify URL"
+                "url": "Enter Spotify URL",
+                "apikey": "Enter Apikey"
             }
         },
         {
             "name": "Threads",
             "desc": "Threads Video Downloader",
-            "path": "/downloader/threads?url=",
-            "status": "NEW",
+            "path": "/downloader/threads?url=&apikey=",
+            "status": "ACTIVE",
             "params": {
-                "url": "Enter a Threads URL"
+                "url": "Enter Threads URL",
+                "apikey": "Enter Apikey"
             }
         },
         {
             "name": "Tiktok",
             "desc": "Tiktok Video Downloader",
-            "path": "/downloader/tiktok?url=",
-            "status": "NEW",
+            "path": "/downloader/tiktok?url=&apikey=",
+            "status": "ACTIVE",
             "params": {
-                "url": "Enter a Tiktok URL"
+                "url": "Enter Tiktok URL",
+                "apikey": "Enter Apikey"
             }
         }]
     },
@@ -133,13 +132,25 @@
         "name": "Maker",
         "items": [{
             "name": "Quotely",
-            "desc": "Generate whatsapp quick chat",
-            "path": "/maker/qc?url=&name=&text=",
-            "status": "NEW",
+            "desc": "Generate WhatsApp Quick Chat",
+            "path": "/maker/quotely?url=&name=&text=&apikey=",
+            "status": "ACTIVE",
             "params": {
-                "url": "Input Avatar URL",
-                "name": "Name account",
-                "text": "Text of the quick chat"
+                "url": "Enter Avatar URL",
+                "name": "Enter Name Account",
+                "text": "Enter Text",
+                "apikey": "Enter Apikey"
+            }
+        },
+        {
+            "name": "Brat",
+            "desc": "Generate Brat Charli XCX",
+            "path": "/maker/brat?text=&theme=&apikey=",
+            "status": "ACTIVE",
+            "params": {
+                "text": "Enter Text",
+                "theme": "Enter Theme",
+                "apikey": "Enter Apikey"
             }
         }]
     },
@@ -147,33 +158,48 @@
         "name": "Random",
         "items": [{
             "name": "Blue Archive",
-            "desc": "Blue Archive Random Images",
-            "path": "/random/ba",
+            "desc": "Get Random Blue Archive Images",
+            "path": "/random/bluearchive?text=&apikey=",
             "status": "ACTIVE"
+            "params": {
+                "apikey": "Enter Apikey"
+            }
         },
         {
             "name": "Cats",
-            "desc": "Get random cats image",
-            "path": "/random/cats",
-            "status": "ERROR"
+            "desc": "Get Random Cats Images",
+            "path": "/random/cats?text=&apikey=",
+            "status": "ACTIVE"
+            "params": {
+                "apikey": "Enter Apikey"
+            }
         },
         {
             "name": "Hadits",
-            "desc": "Get random hadits",
-            "path": "/random/hadits",
-            "status": "NEW"
+            "desc": "Get Random Hadits",
+            "path": "/random/hadits?text=&apikey=",
+            "status": "ACTIVE"
+            "params": {
+                "apikey": "Enter Apikey"
+            }
         },
         {
             "name": "Meme",
-            "desc": "Get random meme image",
-            "path": "/random/meme",
+            "desc": "Get Random Meme Images",
+            "path": "/random/meme?text=&apikey=",
             "status": "ACTIVE"
+            "params": {
+                "apikey": "Enter Apikey"
+            }
         },
         {
             "name": "Quotes",
-            "desc": "Get random quotes",
-            "path": "/random/quotes",
-            "status": "NEW"
+            "desc": "Get Random Quotes",
+            "path": "/random/quotes?text=&apikey=",
+            "status": "ACTIVE"
+            "params": {
+                "apikey": "Enter Apikey"
+            }
         }]
     },
     {
@@ -181,32 +207,35 @@
         "items": [{
             "name": "YouTube",
             "desc": "Video search",
-            "path": "/search/youtube?q=",
+            "path": "/search/youtube?q=&apikey=",
             "status": "ACTIVE",
             "params": {
-                "q": "Search query"
+                "q": "Enter Query",
+                "apikey": "Enter Apikey"
             }
         }]
     },
     {
         "name": "Tools",
         "items": [{
-            "name": "Screenshot Website",
+            "name": "Website Screenshot",
             "desc": "Screenshot any site",
-            "path": "/tools/ssweb?url=&device=",
-            "status": "NEW",
+            "path": "/tools/ssweb?url=&device=&apikey=",
+            "status": "ACTIVE",
             "params": {
-                "url": "Input any URL",
-                "device": "Mobile or Dekstop"
+                "url": "Enter any URL",
+                "device": "Enter Device",
+                "apikey": "Enter Apikey"
             }
         },
         {
             "name": "YouTube Monetization",
             "desc": "Monet Checker",
-            "path": "/tools/ytmonet?url=",
-            "status": "NEW",
+            "path": "/tools/ytmonet?url=&apikey=",
+            "status": "ACTIVE",
             "params": {
-                "url": "URL Youtube"
+                "url": "Enter Youtube URL",
+                "apikey": "Enter Apikey"
             }
         }]
     }]
