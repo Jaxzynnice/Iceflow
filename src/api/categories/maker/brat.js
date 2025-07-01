@@ -45,18 +45,17 @@ module.exports = function(app) {
                     status: false,
                     message: 'Theme Required'
                 });
-            } else if (!apikey) {
-                res.status(400).json({
-                    status: false,
-                    message: 'Apikey Required'
-                });
             } else if (!availableThemes.includes(theme.toLowerCase())) {
                 res.status(400).json({
                     status: false,
                     message: 'Theme not Available',
                     availableThemes
                 });
-                return
+            } else if (!apikey) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Apikey Required'
+                });
             } else if (apikey !== data.apiSettings.apikey[0]) {
                 return res.status(400).json({
                     status: false,
