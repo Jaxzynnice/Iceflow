@@ -1,4 +1,5 @@
 const axios = require('axios');
+
 module.exports = function(app) {
     async function bluearchive() {
         try {
@@ -11,6 +12,20 @@ module.exports = function(app) {
     }
     app.get('/random/bluearhive', async (req, res) => {
         try {
+            const { apikey } = req.query;
+            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
+            if (!apikey) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Apikey Required'
+                });
+            } else if (apikey !== data.apiSettings.apikey[0]) {
+                return res.status(400).json({
+                    status: false,
+                    message: 'Apikey Invalid'
+                });
+            }
+            
             const img = await bluearchive();
             res.writeHead(200, {
                 'Content-Type': 'image/png',
@@ -18,7 +33,11 @@ module.exports = function(app) {
             });
             res.end(img);
         } catch (error) {
-            res.status(500).send(`Error: ${error.message}`);
+            console.error("Error in /random/bluearchive route:", error);
+            res.status(500).json({
+                status: false,
+                message: error.message
+            });
         }
     });
 };
