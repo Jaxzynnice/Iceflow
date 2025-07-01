@@ -22,7 +22,7 @@ module.exports = function(app) {
                     status: false,
                     message: 'Apikey Required'
                 });
-            } else if (apikey !== set.apiSettings.apikey[0]) {
+            } else if (apikey !== data.apiSettings.apikey[0]) {
                 res.status(400).json({
                     status: false,
                     message: 'Apikey Invalid'
