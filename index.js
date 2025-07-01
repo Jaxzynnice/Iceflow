@@ -17,7 +17,7 @@ app.use(cors());
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use('/src', express.static(path.join(__dirname, 'src')));
 
-const settingsPath = path.join(__dirname, './src/settings.json');
+const settingsPath = path.join(__dirname, './src/routers.json');
 const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
 
 app.use((req, res, next) => {
@@ -38,7 +38,7 @@ app.use((req, res, next) => {
 
 // Api Route
 let totalRoutes = 0;
-const apiFolder = path.join(__dirname, './src/api');
+const apiFolder = path.join(__dirname, './src/api/categories');
 fs.readdirSync(apiFolder).forEach((subfolder) => {
     const subfolderPath = path.join(apiFolder, subfolder);
     if (fs.statSync(subfolderPath).isDirectory()) {
@@ -55,66 +55,6 @@ fs.readdirSync(apiFolder).forEach((subfolder) => {
 console.log(chalk.bgHex('#90EE90').hex('#333').bold(' Load Complete! ✓ '));
 console.log(chalk.bgHex('#90EE90').hex('#333').bold(` Total Routes Loaded: ${totalRoutes} `));
 
-// Configure storage
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, path.join('/tmp/uploads'));
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-// File filter
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 
-                         'application/pdf', 'text/plain'];
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error('Invalid file type'), false);
-    }
-};
-
-// Configure upload middleware
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-    fileFilter: fileFilter
-}).array('files', 10); // Max 10 files
-
-// Upload endpoint
-app.post('/api/upload', (req, res) => {
-    upload(req, res, (err) => {
-        if (err) {
-            return res.status(400).json({ 
-                status: false, 
-                message: err.message 
-            });
-        }
-
-        const expiry = req.body.expiry || '1d';
-        const baseUrl = `${req.protocol}://${req.get('host')}/uploads/`;
-        
-        const files = req.files.map(file => ({
-            name: file.originalname,
-            size: file.size,
-            type: file.mimetype,
-            url: baseUrl + file.filename,
-            expiry: expiry
-        }));
-
-        res.json({ 
-            status: true, 
-            message: 'Files uploaded successfully',
-            files: files
-        });
-    });
-});
-
-// Serve uploaded files
-app.use('/uploads', express.static(path.join('/tmp/uploads')));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
