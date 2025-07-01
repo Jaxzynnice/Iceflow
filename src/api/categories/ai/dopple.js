@@ -51,12 +51,13 @@ module.exports = function(app) {
                     status: false,
                     message: 'Apikey Required'
                 });
-            } else if (apikey !== set.apiSettings.apikey) {
+            } else if (apikey !== set.apiSettings.apikey[0]) {
                 return res.status(400).json({
                     status: false,
                     message: 'Apikey Invalid'
                 });
             }
+            
             const message = await dopple(text);
             res.status(200).json({
                 status: true,
