@@ -29,14 +29,31 @@ module.exports = function(app) {
         try {
             const {
                 url,
-                device
+                device,
+                apikey
             } = req.query;
-            if (!url || !device) {
+            if (!url) {
                 return res.status(400).json({
                     status: false,
-                    message: 'URL or Device Required'
+                    message: 'URL Required'
+                });
+            } else if (!device) {
+                return res.status(400).json({
+                    status: false,
+                    message: 'URL Required'
+                });
+            } else if (!apikey) {
+                return res.status(400).json({
+                    status: false,
+                    message: 'URL Required'
+                });
+            } else if (apikey !== data.apiSettings.apikey[0]) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Apikey Invalid'
                 });
             }
+            
             const result = await ssWeb(url, device);
             res.writeHead(200, {
                 'Content-Type': 'image/jpeg',
