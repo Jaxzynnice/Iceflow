@@ -16,7 +16,7 @@ module.exports = function(app) {
     app.get('/random/cats', async (req, res) => {
         try {
             const { apikey } = req.query;
-            const settings = await fetch('https://iceflow.biz.id/src/routes.json');
+            const settings = await fetch('https://iceflow.biz.id/src/routers.json');
             const set = await settings.json();
             if (!apikey) {
                 res.status(400).json({
