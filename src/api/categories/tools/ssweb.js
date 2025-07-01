@@ -33,14 +33,14 @@ module.exports = function(app) {
                 apikey
             } = req.query;
             const availableDevice = ['dekstop', 'mobile'];
-            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
+            const { data } = await axios.get('https://iceflow.biz.id/src/routers.json');
             if (!url) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'URL Required'
                 });
             } else if (!device) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'Device Required'
                 });
@@ -51,7 +51,7 @@ module.exports = function(app) {
                     availableDevice
                 });
             } else if (!apikey) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'Apikey Required'
                 });
@@ -62,12 +62,12 @@ module.exports = function(app) {
                 });
             }
             
-            const result = await ssWeb(url, device);
+            const img = await ssWeb(url, device);
             res.writeHead(200, {
                 'Content-Type': 'image/jpeg',
-                'Content-Length': result.length
+                'Content-Length': img.length
             });
-            res.end(result);
+            res.end(img);
         } catch (error) {
             console.erroe('Error in /tools/ssweb route:', error);
             res.status(500).json({
