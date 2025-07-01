@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         // Fetch settings with improved error handling
-        const settingsResponse = await fetch('/src/routers.json');
+        const settingsResponse = await fetch('https://iceflow.biz.id/src/routers.json');
 
         if (!settingsResponse.ok) {
             throw new Error(`Failed to load settings: ${settingsResponse.status} ${settingsResponse.statusText}`);
