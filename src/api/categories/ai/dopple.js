@@ -35,7 +35,7 @@ module.exports = function(app) {
 
     app.get('/ai/dopple', async (req, res) => {
         try {
-            const settings = await fetch('https://iceflow.biz.id/src/settings.json');
+            const settings = await fetch('https://iceflow.biz.id/src/routes.json');
             const set = await settings.json();
             const {
                 text,
