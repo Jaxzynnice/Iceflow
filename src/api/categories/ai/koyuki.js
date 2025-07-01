@@ -40,7 +40,7 @@ module.exports = function(app) {
                 text,
                 apikey
             } = req.query;
-            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
+            const { data } = await axios.get('https://iceflow.biz.id/src/routers.json');
             if (!text) {
                 return res.status(400).json({
                     status: false,
@@ -64,7 +64,7 @@ module.exports = function(app) {
                 message
             });
         } catch (error) {
-            console.error("Error in /ai/koyuki route:", error");
+            console.error('Error in /ai/koyuki route:', error);
             res.status(500).json({
                 status: false,
                 message: error.message
