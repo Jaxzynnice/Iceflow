@@ -10,10 +10,11 @@ module.exports = function(app) {
             throw error;
         }
     }
+    
     app.get('/random/bluearhive', async (req, res) => {
         try {
             const { apikey } = req.query;
-            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
+            const { data } = await axios.get('https://iceflow.biz.id/src/routers.json');
             if (!apikey) {
                 res.status(400).json({
                     status: false,
@@ -33,7 +34,7 @@ module.exports = function(app) {
             });
             res.end(img);
         } catch (error) {
-            console.error("Error in /random/bluearchive route:", error);
+            console.error('Error in /random/bluearchive route:', error);
             res.status(500).json({
                 status: false,
                 message: error.message
