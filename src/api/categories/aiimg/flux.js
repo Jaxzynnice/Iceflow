@@ -20,6 +20,7 @@ module.exports = function(app) {
                 prompt,
                 apikey
             } = req.query;
+            const { data } = await axios.get('https://iceflow.bi.id/src/routes.json');
             if (!prompt) {
                 return res.status(400).json({
                     status: false,
@@ -29,6 +30,11 @@ module.exports = function(app) {
                 return res.status(400).json({
                     status: false,
                     message: 'Apikey Required'
+                });
+            } else if (apikey !== data.apiSettings.apikey) {
+                return res.status(400).json({
+                    status: false,
+                    message: 'Apikey Invalid'
                 });
             }
             
