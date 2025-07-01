@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iceflow Uploader</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="icon" href="../../src/img/icon.png" type="image/png">
+    <style>
+        /* Upload Page Specific Styles */
+        .upload-navbar {
+            background-color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .upload-navbar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .upload-navbar .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6c5ce7, #00cec9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .upload-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .upload-card, .files-card {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+        
+        .file-input-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .file-input-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+        
+        .file-input-label:hover {
+            border-color: var(--primary-color);
+            background-color: var(--highlight-color);
+        }
+        
+        .files-table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        
+        .files-table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+        }
+        
+        .files-table th {
+            background-color: var(--background-color);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .files-table td {
+            padding: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        
+        .file-name, .file-url {
+            max-width: 200px;
+            overflow-x: auto;
+            white-space: nowrap;
+            display: block;
+            padding: 0.5rem;
+            background-color: var(--background-color);
+            border-radius: var(--border-radius-sm);
+            font-family: monospace;
+        }
+        
+        .dark-mode-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="upload-navbar">
+        <div class="logo">
+            <img src="../../src/img/icon.png" alt="Iceflow Logo" width="32" height="32">
+            <span class="logo-text">Iceflow Uploader</span>
+        </div>
+        <div class="dark-mode-toggle">
+            <i class="fas fa-sun"></i>
+            <label class="switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider round"></span>
+            </label>
+            <i class="fas fa-moon"></i>
+        </div>
+    </nav>
+
+    <div class="upload-container">
+        <div class="upload-card">
+            <h2><i class="fas fa-cloud-upload-alt me-2"></i>Upload Your Files</h2>
+            
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="file-input-container">
+                    <input type="file" id="fileInput" class="d-none" multiple>
+                    <label for="fileInput" class="file-input-label">
+                        <i class="fas fa-folder-open fa-2x mb-3"></i>
+                        <span id="fileInputLabel">Choose Files</span>
+                        <span id="fileCount">no files selected</span>
+                    </label>
+                </div>
+
+                <div class="mt-3">
+                    <label for="expirySelect" class="form-label">Expiration Time:</label>
+                    <select id="expirySelect" class="form-select">
+                        <option value="1h">1 Hour</option>
+                        <option value="1d" selected>1 Day</option>
+                        <option value="7d">7 Days</option>
+                        <option value="30d">30 Days</option>
+                        <option value="never">Never</option>
+                    </select>
+                </div>
+
+                <div class="mt-3 text-muted small">
+                    <i class="fas fa-info-circle me-1"></i> Max 10MB per file • Images, Videos, Documents
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3 w-100">
+                    <i class="fas fa-upload me-2"></i>Upload Files
+                </button>
+            </form>
+        </div>
+
+        <div class="files-card">
+            <h3><i class="fas fa-file-alt me-2"></i>Uploaded Files</h3>
+            
+            <div class="files-table-container">
+                <table class="files-table">
+                    <thead>
+                        <tr>
+                            <th>FILE NAME</th>
+                            <th>SIZE</th>
+                            <th>TYPE</th>
+                            <th>URL</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="uploadedFilesList">
+                        <!-- Example row -->
+                        <tr>
+                            <td><span class="file-name">example-image.jpg</span></td>
+                            <td>1.25 MB</td>
+                            <td>image/jpeg</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="file-url">https://example.com/uploads/123.jpg</span>
+                                    <button class="btn btn-sm btn-outline-primary copy-btn ms-2" 
+                                        data-url="https://example.com/uploads/123.jpg">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="https://example.com/uploads/123.jpg" target="_blank" 
+                                    class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../script.js"></script>
+    <script>
+        // Upload Handler
+        document.addEventListener('DOMContentLoaded', () => {
+            // Theme Toggle
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.addEventListener('change', () => {
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            });
+
+            // Initialize theme
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                themeToggle.checked = true;
+            }
+
+            // File upload handling
+            const fileInput = document.getElementById('fileInput');
+            const fileCount = document.getElementById('fileCount');
+            const uploadForm = document.getElementById('uploadForm');
+            const uploadedFilesList = document.getElementById('uploadedFilesList');
+
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    let sizeValid = true;
+                    let totalSize = 0;
+                    
+                    Array.from(fileInput.files).forEach(file => {
+                        totalSize += file.size;
+                        if (file.size > 10 * 1024 * 1024) sizeValid = false;
+                    });
+
+                    if (!sizeValid) {
+                        showToast('One or more files exceed 10MB limit', 'error');
+                        fileInput.value = '';
+                        fileCount.textContent = 'no files selected';
+                        return;
+                    }
+
+                    fileCount.textContent = `${fileInput.files.length} file(s) selected (${formatFileSize(totalSize)})`;
+                } else {
+                    fileCount.textContent = 'no files selected';
+                }
+            });
+
+            uploadForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    showToast('Please select at least one file', 'error');
+                    return;
+                }
+
+                const submitBtn = uploadForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+
+                const formData = new FormData();
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('files', fileInput.files[i]);
+                }
+                formData.append('expiry', document.getElementById('expirySelect').value);
+
+                try {
+                    const response = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        result.files.forEach(file => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td><span class="file-name" title="${file.name}">${file.name}</span></td>
+                                <td>${formatFileSize(file.size)}</td>
+                                <td>${file.type}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="file-url">${file.url}</span>
+                                        <button class="btn btn-sm btn-outline-primary copy-btn ms-2" 
+                                            data-url="${file.url}">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="${file.url}" target="_blank" 
+                                        class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </td>
+                            `;
+                            uploadedFilesList.prepend(row);
+                        });
+
+                        fileInput.value = '';
+                        fileCount.textContent = 'no files selected';
+                        showToast('Files uploaded successfully!', 'success');
+                    } else {
+                        throw new Error(result.message || 'Upload failed');
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    showToast(`Upload failed: ${error.message}`, 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-upload me-2"></i>Upload Files';
+                }
+            });
+
+            // Helper function to format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2) + ' ' + sizes[i];
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+{
+    "name": "Iceflow API",
+    "version": "v2.3.4",
+    "description": "Unlock the power of seamless integration with our comprehensive Koyuki Iceflow API suite. Designed for developers, by developers.",
+    "bannerImage": "/src/banner.png",
+    "header": {
+        "status": "Free!"
+    },
+    "apiSettings": {
+        "creator": "Iceflow",
+        "apikey": ["ice-api"]
+    },
+    "categories": [{
+        "name": "AI (Artificial Intelligence)",
+        "items": [{
+            "name": "Dopple AI",
+            "desc": "Talk with Dopple AI",
+            "path": "/ai/dopple?text=&apikey=",
+            "status": "UPDATE",
+            "params": {
+                "text": "Text for Dopple AI to respond to",
+                "apikey": "The apikey is ice-api"
+            }
+        },
+        {
+            "name": "Felo AI",
+            "desc": "Talk with Felo AI",
+            "path": "/ai/felo?text=",
+            "status": "MAINTENANCE",
+            "params": {
+                "text": "Text for Felo AI to respond to"
+            }
+        },
+        {
+            "name": "Koyuki AI",
+            "desc": "Talk with Koyuki AI",
+            "path": "/ai/koyuki?text=",
+            "status": "NEW",
+            "params": {
+                "text": "Text for Koyuki Iceflow to respond to"
+            }
+        },
+        {
+            "name": "Lumin AI",
+            "desc": "Talk with Lumin AI",
+            "path": "/ai/lumin?text=",
+            "status": "ACTIVE",
+            "params": {
+                "text": "Text for Lumin AI to respond to"
+            }
+        },
+        {
+            "name": "Venice AI",
+            "desc": "Talk with Felo AI",
+            "path": "/ai/venice?text=",
+            "status": "ACTIVE",
+            "params": {
+                "text": "Text for Venice AI to respond to"
+            }
+        },
+        {
+            "name": "HydroMind",
+            "desc": "See the list of supported AI models here: https://mind.hydrooo.web.id",
+            "path": "/ai/hydromind?text=&model=",
+            "status": "ERROR",
+            "params": {
+                "text": "Teks atau perintah untuk chat AI",
+                "model":"1See the list of supported AI models here: https://mind.hydrooo.web.id"
+            }
+        }]
+    },
+    {
+        "name": "AI Image",
+        "items": [{
+            "name": "Flux",
+            "desc": "Generate image with Flux",
+            "path": "/aiimg/flux?prompt=",
+            "status": "NEW",
+            "params": {
+                "prompt": "Enter a prompt"
+            }
+        }]
+    },
+    {
+        "name": "Downloader",
+        "items": [{
+            "name": "Facebook",
+            "desc": "Facebook Video Downloader",
+            "path": "/downloader/facebook?url=",
+            "status": "NEW",
+            "params": {
+                "url": "Enter a Facebook URL"
+            }
+        },
+        {
+            "name": "Instagram",
+            "desc": "Instagram Video Downloader",
+            "path": "/downloader/instagram?url=",
+            "status": "NEW",
+            "params": {
+                "url": "Enter a Instagram URL"
+            }
+        },
+        {
+            "name": "Spotify",
+            "desc": "Spotify Music Downloader",
+            "path": "/downloader/spotify?url=",
+            "status": "NEW",
+            "params": {
+                "url": "Enter a Spotify URL"
+            }
+        },
+        {
+            "name": "Threads",
+            "desc": "Threads Video Downloader",
+            "path": "/downloader/threads?url=",
+            "status": "NEW",
+            "params": {
+                "url": "Enter a Threads URL"
+            }
+        },
+        {
+            "name": "Tiktok",
+            "desc": "Tiktok Video Downloader",
+            "path": "/downloader/tiktok?url=",
+            "status": "NEW",
+            "params": {
+                "url": "Enter a Tiktok URL"
+            }
+        }]
+    },
+    {
+        "name": "Maker",
+        "items": [{
+            "name": "Quotely",
+            "desc": "Generate whatsapp quick chat",
+            "path": "/maker/qc?url=&name=&text=",
+            "status": "NEW",
+            "params": {
+                "url": "Input Avatar URL",
+                "name": "Name account",
+                "text": "Text of the quick chat"
+            }
+        }]
+    },
+    {
+        "name": "Random",
+        "items": [{
+            "name": "Blue Archive",
+            "desc": "Blue Archive Random Images",
+            "path": "/random/ba",
+            "status": "ACTIVE"
+        },
+        {
+            "name": "Cats",
+            "desc": "Get random cats image",
+            "path": "/random/cats",
+            "status": "ERROR"
+        },
+        {
+            "name": "Hadits",
+            "desc": "Get random hadits",
+            "path": "/random/hadits",
+            "status": "NEW"
+        },
+        {
+            "name": "Meme",
+            "desc": "Get random meme image",
+            "path": "/random/meme",
+            "status": "ACTIVE"
+        },
+        {
+            "name": "Quotes",
+            "desc": "Get random quotes",
+            "path": "/random/quotes",
+            "status": "NEW"
+        }]
+    },
+    {
+        "name": "Search",
+        "items": [{
+            "name": "YouTube",
+            "desc": "Video search",
+            "path": "/search/youtube?q=",
+            "status": "ACTIVE",
+            "params": {
+                "q": "Search query"
+            }
+        }]
+    },
+    {
+        "name": "Tools",
+        "items": [{
+            "name": "Screenshot Website",
+            "desc": "Screenshot any site",
+            "path": "/tools/ssweb?url=&device=",
+            "status": "NEW",
+            "params": {
+                "url": "Input any URL",
+                "device": "Mobile or Dekstop"
+            }
+        },
+        {
+            "name": "YouTube Monetization",
+            "desc": "Monet Checker",
+            "path": "/tools/ytmonet?url=",
+            "status": "NEW",
+            "params": {
+                "url": "URL Youtube"
+            }
+        }]
+    }]
+}
