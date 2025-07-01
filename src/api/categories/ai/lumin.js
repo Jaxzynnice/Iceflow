@@ -16,7 +16,7 @@ module.exports = function(app) {
                 text,
                 apikey
             } = req.query;
-            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
+            const { data } = await axios.get('https://iceflow.biz.id/src/routers.json');
             if (!text) {
                 return res.status(400).json({
                     status: false,
@@ -40,7 +40,7 @@ module.exports = function(app) {
                 message: result
             });
         } catch (error) {
-            console.error("Error in /ai/lumin route:", error);
+            console.error('Error in /ai/lumin route:', error);
             res.status(500).json({
                 status: false,
                 message: error.message
