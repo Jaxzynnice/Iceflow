@@ -27,12 +27,13 @@ module.exports = function(app) {
                     status: false,
                     message: 'Apikey Required'
                 });
-            } else if (apikey !== data.apiSettings.apikey) {
+            } else if (apikey !== data.apiSettings.apikey[0]) {
                 return res.status(400).json({
                     status: false,
                     message: 'Apikey Invalid'
                 });
             }
+            
             const { result } = await fetchContent(text);
             res.status(200).json({
                 status: true,
