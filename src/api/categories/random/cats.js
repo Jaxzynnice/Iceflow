@@ -15,6 +15,21 @@ module.exports = function(app) {
     
     app.get('/random/cats', async (req, res) => {
         try {
+            const { apikey } = req.query;
+            const settings = await fetch('https://iceflow.biz.id/src/routes.json');
+            const set = await settings.json();
+            if (!apikey) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Apikey Required'
+                });
+            } else if (apikey !== set.apiSettings.apikey[0]) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Apikey Invalid'
+                });
+            }
+            
             const img = await cats();
             res.writeHead(200, {
                 'Content-Type': 'image/jpeg',
@@ -22,6 +37,7 @@ module.exports = function(app) {
             });
             res.end(img);
         } catch (error) {
+            console.error('Error in /random/cats route', error);
             res.status(500).json({
                 status: false,
                 message: error.message
