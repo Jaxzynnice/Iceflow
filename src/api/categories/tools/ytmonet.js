@@ -22,20 +22,34 @@ module.exports = function(app) {
     app.get('/tools/ytmonet', async (req, res) => {
         try {
             const {
-                url
+                url,
+                apikey
             } = req.query;
+            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
             if (!url) {
                 return res.status(400).json({
                     status: false,
                     message: 'URL Required'
                 });
+            } else if (!apikey) {
+                return res.status(400).json({
+                    status: false,
+                    message: 'Apikey Required'
+                });
+            } else if (apikey !== data.apiSettings.apikey[0]) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Apikey Invalid'
+                });
             }
+            
             const result = await ytmonet(url);
             res.status(200).json({
                 status: true,
                 result
             });
         } catch (error) {
+            console.error('Error in /tools/ytmonet route:', error);
             res.status(500).json({
                 status: false,
                 message: error.message
