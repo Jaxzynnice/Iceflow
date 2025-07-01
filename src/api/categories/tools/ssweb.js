@@ -32,6 +32,8 @@ module.exports = function(app) {
                 device,
                 apikey
             } = req.query;
+            const availableDevice = ['dekstop', 'mobile'];
+            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
             if (!url) {
                 return res.status(400).json({
                     status: false,
@@ -40,12 +42,18 @@ module.exports = function(app) {
             } else if (!device) {
                 return res.status(400).json({
                     status: false,
-                    message: 'URL Required'
+                    message: 'Device Required'
+                });
+            } else if (!availableDevice.includes(device.toLowerCase())) {
+                res.status(400).json({
+                    status: false,
+                    message: 'Device not Available',
+                    availableDevice
                 });
             } else if (!apikey) {
                 return res.status(400).json({
                     status: false,
-                    message: 'URL Required'
+                    message: 'Apikey Required'
                 });
             } else if (apikey !== data.apiSettings.apikey[0]) {
                 res.status(400).json({
@@ -61,6 +69,7 @@ module.exports = function(app) {
             });
             res.end(result);
         } catch (error) {
+            console.erroe('Error in /tools/ssweb route:', error);
             res.status(500).json({
                 status: false,
                 message: error.message
