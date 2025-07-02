@@ -4,6 +4,7 @@ const path = require('path');
 const chalk = require('chalk');
 const multer = require('multer');
 const express = require('express');
+const rl = require('./rateLimiter');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -14,6 +15,8 @@ app.set("json spaces", 2);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
+app.use(rl.requestLimiter);
+app.use(rl.globalRateLimiter);
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use('/src', express.static(path.join(__dirname, 'src')));
 
