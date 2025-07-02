@@ -60,7 +60,7 @@ const apiKeySchema = new mongoose.Schema({
     }
 });
 
-const ApiKey = mongoose.model('ApiKey', apiKeySchema);
+const ApiKey = mongoose.models.ApiKey || mongoose.model('ApiKey', apiKeySchema);
 
 app.enable("trust proxy");
 app.set("json spaces", 2);
