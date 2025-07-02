@@ -113,8 +113,7 @@ const validateApiKey = async (req, res, next) => {
     if (!apiKey) {
         return res.status(401).json({
             status: false,
-            message: 'API key is required. Add ?apikey=your_api_key to your request',
-            code: 'MISSING_API_KEY'
+            message: 'Apikey Required'
         });
     }
 
@@ -127,8 +126,7 @@ const validateApiKey = async (req, res, next) => {
         if (!keyData) {
             return res.status(401).json({
                 status: false,
-                message: 'Invalid or inactive API key',
-                code: 'INVALID_API_KEY'
+                message: 'Apikey Invalid'
             });
         }
 
@@ -146,8 +144,7 @@ const validateApiKey = async (req, res, next) => {
         if (keyData.usageCount >= keyData.dailyLimit) {
             return res.status(429).json({
                 status: false,
-                message: 'Daily API usage limit exceeded',
-                code: 'LIMIT_EXCEEDED',
+                message: 'Apikey Limit Exceeded',
                 limit: keyData.dailyLimit,
                 used: keyData.usageCount
             });
@@ -173,8 +170,7 @@ const validateApiKey = async (req, res, next) => {
         console.error('API Key validation error:', error);
         return res.status(500).json({
             status: false,
-            message: 'Internal server error during API key validation',
-            code: 'VALIDATION_ERROR'
+            message: error.message
         });
     }
 };
@@ -189,7 +185,7 @@ app.use((req, res, next) => {
         if (data && typeof data === 'object') {
             const responseData = {
                 status: data.status,
-                creator: settings.apiSettings.creator || "Created Using Rynn UI",
+                creator: settings.apiSettings.creator,
                 ...data
             };
             
