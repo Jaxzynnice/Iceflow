@@ -160,7 +160,7 @@
             "name": "Blue Archive",
             "desc": "Get Random Blue Archive Images",
             "path": "/random/bluearchive?text=&apikey=",
-            "status": "ACTIVE"
+            "status": "ACTIVE",
             "params": {
                 "apikey": "Enter Apikey"
             }
@@ -169,7 +169,7 @@
             "name": "Cats",
             "desc": "Get Random Cats Images",
             "path": "/random/cats?text=&apikey=",
-            "status": "ACTIVE"
+            "status": "ACTIVE",
             "params": {
                 "apikey": "Enter Apikey"
             }
@@ -178,7 +178,7 @@
             "name": "Hadits",
             "desc": "Get Random Hadits",
             "path": "/random/hadits?text=&apikey=",
-            "status": "ACTIVE"
+            "status": "ACTIVE",
             "params": {
                 "apikey": "Enter Apikey"
             }
@@ -187,7 +187,7 @@
             "name": "Meme",
             "desc": "Get Random Meme Images",
             "path": "/random/meme?text=&apikey=",
-            "status": "ACTIVE"
+            "status": "ACTIVE",
             "params": {
                 "apikey": "Enter Apikey"
             }
@@ -196,7 +196,7 @@
             "name": "Quotes",
             "desc": "Get Random Quotes",
             "path": "/random/quotes?text=&apikey=",
-            "status": "ACTIVE"
+            "status": "ACTIVE",
             "params": {
                 "apikey": "Enter Apikey"
             }
