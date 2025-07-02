@@ -37,10 +37,11 @@ module.exports = function(app) {
         try {
             const { text } = req.query;
             if (!text) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'Text Required'
                 });
+            }
             
             const message = await dopple(text);
             res.status(200).json({
