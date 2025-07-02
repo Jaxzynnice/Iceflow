@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Add loading animation and error handling
             dynamicImage.onerror = () => {
-                dynamicImage.src = '/public/img/banner.png'; // Fallback image
+                dynamicImage.src = '/img/banner.png'; // Fallback image
                 showToast('Failed to load banner image, using default', 'error');
             };
 
