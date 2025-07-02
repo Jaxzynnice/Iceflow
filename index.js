@@ -185,15 +185,6 @@ app.use((req, res, next) => {
                 ...data
             };
             
-            // Add API key usage info if available
-            if (req.apiKeyInfo && data.status !== false) {
-                responseData.apiUsage = {
-                    used: req.apiKeyInfo.usageCount,
-                    limit: req.apiKeyInfo.dailyLimit,
-                    remaining: req.apiKeyInfo.dailyLimit - req.apiKeyInfo.usageCount
-                };
-            }
-            
             return originalJson.call(this, responseData);
         }
         return originalJson.call(this, data);
