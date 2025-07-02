@@ -35,28 +35,12 @@ module.exports = function(app) {
 
     app.get('/ai/dopple', async (req, res) => {
         try {
-            const settings = await fetch('https://iceflow.biz.id/src/routers.json');
-            const set = await settings.json();
-            const {
-                text,
-                apikey
-            } = req.query;
+            const { text } = req.query;
             if (!text) {
                 return res.status(400).json({
                     status: false,
                     message: 'Text Required'
                 });
-            } else if (!apikey) {
-                return res.status(400).json({
-                    status: false,
-                    message: 'Apikey Required'
-                });
-            } else if (apikey !== set.apiSettings.apikey[0]) {
-                return res.status(400).json({
-                    status: false,
-                    message: 'Apikey Invalid'
-                });
-            }
             
             const message = await dopple(text);
             res.status(200).json({
