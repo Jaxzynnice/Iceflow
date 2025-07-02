@@ -39,7 +39,7 @@ module.exports = function(app) {
                 res.status(400).json({
                     status: false,
                     message: 'Text Required'
-                })(
+                });
             } else if (!theme) {
                 res.status(400).json({
                     status: false,
@@ -57,7 +57,7 @@ module.exports = function(app) {
                     message: 'Apikey Required'
                 });
             } else if (apikey !== data.apiSettings.apikey[0]) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'Apikey Invalid'
                 });
@@ -109,7 +109,6 @@ module.exports = function(app) {
                 `);
 
             let img = Buffer.from(resp.output, 'base64');
-
             if (theme.toLowerCase() === 'black') {
                 img = await sharp(buff)
                 .flop()
