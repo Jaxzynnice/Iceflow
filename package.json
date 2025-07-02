@@ -1,6 +1,6 @@
 {
   "name": "Iceflow API",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "A simple and customizable API documentation interface built with Express.js.",
   "main": "index.js",
   "type": "commonjs",
@@ -17,6 +17,7 @@
     "cors": "^2.8.5",
     "chalk": "^4.1.2",
     "express": "^4.19.2",
+    "express-rate-limit": "^7.5.1",
     "form-data": "^4.0.3",
     "fs": "^0.0.1-security",
     "html-to-image": "^1.11.13",
