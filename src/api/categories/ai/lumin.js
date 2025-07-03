@@ -12,25 +12,11 @@ module.exports = function(app) {
     }
     app.get('/ai/lumin', async (req, res) => {
         try {
-            const {
-                text,
-                apikey
-            } = req.query;
-            const { data } = await axios.get('https://iceflow.biz.id/src/routers.json');
+            const { text } = req.query;
             if (!text) {
                 return res.status(400).json({
                     status: false,
                     message: 'Text Required'
-                });
-            } else if (!apikey) {
-                return res.status(400).json({
-                    status: false,
-                    message: 'Apikey Required'
-                });
-            } else if (apikey !== data.apiSettings.apikey[0]) {
-                return res.status(400).json({
-                    status: false,
-                    message: 'Apikey Invalid'
                 });
             }
             
