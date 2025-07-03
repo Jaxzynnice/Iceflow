@@ -1,23 +1,13 @@
-const axios = require('axios');
 const yts = require('yt-search');
 
 module.exports = function(app) {
     app.get('/search/youtube', async (req, res) => {
         try {
-            const {
-                q,
-                apikey
-            } = req.query;
-            const { data } = await axios.get('https://iceflow.biz.id/src/routers.json');
-            if (!apikey) {
+            const { q } = req.query;
+            if (!q) {
                 res.status(400).json({
                     status: false,
-                    message: 'Apikey Required'
-                });
-            } else if (apikey !== data.apiSettings.apikey[0]) {
-                res.status(400).json({
-                    status: false,
-                    message: 'Apikey Invalid'
+                    message: 'Query Required'
                 });
             }
             
