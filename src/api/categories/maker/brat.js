@@ -30,10 +30,8 @@ module.exports = function(app) {
         try {
             const {
                 text,
-                theme,
-                apikey
+                theme
             } = req.query;
-            const { data } = await axios.get('https://iceflow.biz.id/src/routers.json');
             const availableThemes = ['white', 'black', 'green', 'blue', 'strike'];
             if (!text) {
                 res.status(400).json({
@@ -50,16 +48,6 @@ module.exports = function(app) {
                     status: false,
                     message: 'Theme not Available',
                     availableThemes
-                });
-            } else if (!apikey) {
-                res.status(400).json({
-                    status: false,
-                    message: 'Apikey Required'
-                });
-            } else if (apikey !== data.apiSettings.apikey[0]) {
-                res.status(400).json({
-                    status: false,
-                    message: 'Apikey Invalid'
                 });
             }
 
