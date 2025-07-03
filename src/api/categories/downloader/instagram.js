@@ -41,25 +41,11 @@ module.exports = function(app) {
 
     app.get('/downloader/instagram', async (req, res) => {
         try {
-            const {
-                url,
-                apikey
-            } = req.query;
-            const { data } = await axios.get('https://iceflow.biz.id/src/routes.json');
+            const { url } = req.query;
             if (!url) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
                     message: 'URL Required'
-                });
-            } else if (!apikey) {
-                return res.status(400).json({
-                    status: false,
-                    message: 'Apikey Required'
-                });
-            } else if (apikey !== data.apiSettings.apikey[0]) {
-                return res.status(400).json({
-                    status: false,
-                    message: 'Apikey Invalid'
                 });
             }
             
