@@ -16,25 +16,11 @@ module.exports = function(app) {
 
     app.get('/aiimg/flux', async (req, res) => {
         try {
-            const {
-                prompt,
-                apikey
-            } = req.query;
-            const { data } = await axios.get('https://iceflow.biz.id/src/routers.json');
+            const { prompt } = req.query;
             if (!prompt) {
                 res.status(400).json({
                     status: false,
                     message: 'Text Required'
-                });
-            } else if (!apikey) {
-                res.status(400).json({
-                    status: false,
-                    message: 'Apikey Required'
-                });
-            } else if (apikey !== data.apiSettings.apikey) {
-                res.status(400).json({
-                    status: false,
-                    message: 'Apikey Invalid'
                 });
             }
             
