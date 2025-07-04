@@ -17,7 +17,7 @@ const {
 } = require('./src/keySettings');
 
 const app = express();
-const PORT = process.en.PORT || 4000;
+const PORT = process.env.PORT || 4000;
 
 // MongoDB connection
 mongoose.connect('mongodb+srv://Jaxzynnice:bSN7BN5mTIHeRD2Q@iceflow.acatmdn.mongodb.net/icefloww?retryWrites=true&w=majority&appName=Iceflow').then(() => {
