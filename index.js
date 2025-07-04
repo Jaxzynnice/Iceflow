@@ -14,7 +14,7 @@ const {
     secondRateLimiter,
     minuteRateLimiter,
     globalRateLimiter
-} = require('/src/keySettings');
+} = require('./src/keySettings');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
