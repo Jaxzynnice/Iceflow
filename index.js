@@ -169,13 +169,12 @@ app.get('/apikey/check', async (req, res) => {
             email,
             isActive,
             isAdmin,
-            todayHit,
             totalHit,
             createdAt,
             logs
         } = keyData;
 
-        let todayHit = keyData.usageCount;
+        let todayHit = keyData.todayHit;
         if (hoursDiff >= 24) {
             todayHit = 0;
         }
