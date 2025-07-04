@@ -162,7 +162,6 @@ app.get('/apikey/check', async (req, res) => {
         const hoursDiff = timeDiff / (1000 * 3600);
         
         const {
-            apikey,
             plan,
             limit,
             name,
@@ -184,7 +183,7 @@ app.get('/apikey/check', async (req, res) => {
         res.json({
             status: true,
             data: {
-                apikey,
+                apikey: keyData.apikey,
                 plan,
                 limit: limit - currentUsage,
                 name,
