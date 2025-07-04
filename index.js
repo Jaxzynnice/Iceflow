@@ -245,7 +245,6 @@ app.delete('/apikey/delete', async (req, res) => {
         }
         
         const {
-            apikey,
             name,
             number,
             email
