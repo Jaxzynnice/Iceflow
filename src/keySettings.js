@@ -4,7 +4,7 @@ const rateLimit = require('express-rate-limit');
 
 // API Key Schema
 const apiKeySchema = new mongoose.Schema({
-    apiKey: {
+    apikey: {
         type: String,
         required: true,
         unique: true
@@ -52,7 +52,8 @@ const apiKeySchema = new mongoose.Schema({
     logs: {
         ipAddress:{
             type: Number,
-            
+            required: true,
+            unique: true
         },
         lastUsed: {
             type: Date,
@@ -73,11 +74,10 @@ const excludedPaths = [
     '/health'
 ];
 
-// Fungsi untuk generate API key
-function generateApiKey() {
-    const keyId = crypto.randomBytes(8).toString('hex');
-    const apiKey = 'ak_' + crypto.randomBytes(32).toString('hex');
-    return { keyId, apiKey };
+// Fungsi untuk generate Apikey
+function defaultKey() {
+    const key = 'ice-' + crypto.randomBytes(5).toString('hex');
+    return key;
 }
 
 // Middleware untuk validasi API key
