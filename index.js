@@ -8,7 +8,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const {
     ApiKey,
-    generateDefaultKey,
+    defaultKey,
     validateApiKey,
     requestLimiter,
     secondRateLimiter,
@@ -81,12 +81,12 @@ app.post('/apikey/create', async (req, res) => {
                 status: false,
                 message: 'Name Required'
             });
-        } else  (!number) {
+        } else if (!number) {
             res.status(400).json({
                 status: false,
                 message: 'Number Required'
             });
-        } else  (!email) {
+        } else if (!email) {
             res.status(400).json({
                 status: false,
                 message: 'Email Required'
