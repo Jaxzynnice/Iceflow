@@ -233,6 +233,7 @@ app.delete('/apikey/delete', async (req, res) => {
 
         let query = {};
         if (apikey) query.apikey = apikey;
+        if (number) query.number = number;
         if (email) query.email = email;
 
         const deletedKey = await ApiKey.findOneAndDelete(query);
@@ -243,20 +244,13 @@ app.delete('/apikey/delete', async (req, res) => {
                 message: 'Apikey Not Found'
             });
         }
-        
-        const {
-            name,
-            number,
-            email
-        } = deletedKey;
 
         res.json({
             status: true,
             data: {
-                apikey,
-                name,
-                number,
-                email
+                apikey: deletedKey.apikey,
+                number: deletedKey.number,
+                email: deletedKey.email
             }
         });
     } catch (error) {
