@@ -204,7 +204,7 @@ const requestLimiter = (req, res, next) => {
 
 module.exports = {
     ApiKey,
-    generateApiKey,
+    defaultKey,
     validateApiKey,
     requestLimiter,
     secondRateLimiter,
