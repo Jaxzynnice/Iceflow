@@ -2,11 +2,12 @@ const fs = require('fs');
 const cors = require('cors');
 const path = require('path');
 const chalk = require('chalk');
+const crypto = require('crypto');
 const multer = require('multer');
 const express = require('express');
 const mongoose = require('mongoose');
-const crypto = require('crypto');
-const rl = require('./rateLimiter');
+const rl = require('./src/keySettings');
+const { ApiKey, secondRateLimiter, minuteRateLimiter } = require('./src/keySettings
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -17,50 +18,6 @@ mongoose.connect('mongodb+srv://Jaxzynnice:bSN7BN5mTIHeRD2Q@iceflow.acatmdn.mong
 }).catch(err => {
     console.error(chalk.bgHex('#FF6B6B').hex('#FFF').bold(' MongoDB Connection Error: '), err);
 });
-
-// API Key Schema
-const apiKeySchema = new mongoose.Schema({
-    keyId: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    apiKey: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    name: {
-        type: String,
-        required: true
-    },
-    email: {
-        type: String,
-        required: true
-    },
-    isActive: {
-        type: Boolean,
-        default: true
-    },
-    usageCount: {
-        type: Number,
-        default: 0
-    },
-    dailyLimit: {
-        type: Number,
-        default: 1000
-    },
-    lastUsed: {
-        type: Date,
-        default: Date.now
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-});
-
-const ApiKey = mongoose.models.ApiKey || mongoose.model('ApiKey', apiKeySchema);
 
 app.enable("trust proxy");
 app.set("json spaces", 2);
