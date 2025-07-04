@@ -8,13 +8,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const {
     ApiKey,
-    generateApiKey,
+    generateDefaultKey,
     validateApiKey,
     requestLimiter,
     secondRateLimiter,
     minuteRateLimiter,
     globalRateLimiter
-} = require('./src/keySettings');
+} = require('/src/keySettings');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -34,7 +34,7 @@ app.use(cors());
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use('/src', express.static(path.join(__dirname, 'src')));
 
-const settingsPath = path.join(__dirname, './src/routers.json');
+const settingsPath = path.join(__dirname, '/src/routers.json');
 const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
 
 // Key Settings
@@ -67,53 +67,69 @@ app.use((req, res, next) => {
 // Create API Key
 app.post('/apikey/create', async (req, res) => {
     try {
-        const { name, email, dailyLimit } = req.body;
+        const {
+            apikey,
+            plan,
+            limit,
+            name,
+            number,
+            email
+        } = req.body;
         
-        if (!name || !email) {
-            return res.status(400).json({
+        if (!name) {
+            res.status(400).json({
                 status: false,
-                message: 'Name and email are required'
+                message: 'Name Required'
+            });
+        } else  (!number) {
+            res.status(400).json({
+                status: false,
+                message: 'Number Required'
+            });
+        } else  (!email) {
+            res.status(400).json({
+                status: false,
+                message: 'Email Required'
             });
         }
 
         // Check if email already exists
         const existingKey = await ApiKey.findOne({ email });
         if (existingKey) {
-            return res.status(409).json({
+            res.status(409).json({
                 status: false,
-                message: 'API key already exists for this email'
+                message: 'Apikey already exists for this email'
             });
         }
-
-        const { keyId, apiKey } = generateApiKey();
         
         const newApiKey = new ApiKey({
-            keyId,
-            apiKey,
+            apikey: apikey || defaultKey(),
+            plan: plan || 'FREE',
+            limit: limit || '1000',
             name,
-            email,
-            dailyLimit: dailyLimit || 1000
+            number,
+            email
         });
 
         await newApiKey.save();
 
         res.status(201).json({
             status: true,
-            message: 'API key created successfully',
             data: {
-                keyId,
-                apiKey,
+                apikey: newApiKey.apikey,
+                plan: newApiKey.plan,
+                limit: newApiKey.limit,
                 name,
+                number,
                 email,
-                dailyLimit: newApiKey.dailyLimit,
                 createdAt: newApiKey.createdAt
             }
         });
     } catch (error) {
-        console.error('Create API key error:', error);
+        console.error('Error in /apikey/create route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to create API key'
+            message: 'Failed to create Apikey'
         });
     }
 });
@@ -124,18 +140,18 @@ app.get('/apikey/check', async (req, res) => {
         const { apikey } = req.query;
         
         if (!apikey) {
-            return res.status(400).json({
+            res.status(400).json({
                 status: false,
-                message: 'API key parameter is required'
+                message: 'Apikey Required'
             });
         }
 
-        const keyData = await ApiKey.findOne({ apiKey: apikey });
+        const keyData = await ApiKey.findOne({ apikey });
         
         if (!keyData) {
             return res.status(404).json({
                 status: false,
-                message: 'API key not found'
+                message: 'Apikey Not Found'
             });
         }
 
@@ -144,32 +160,49 @@ app.get('/apikey/check', async (req, res) => {
         const lastUsed = new Date(keyData.lastUsed);
         const timeDiff = now.getTime() - lastUsed.getTime();
         const hoursDiff = timeDiff / (1000 * 3600);
+        
+        const {
+            apikey,
+            plan,
+            limit,
+            name,
+            number,
+            email,
+            isActive,
+            isAdmin,
+            todayHit,
+            totalHit,
+            createdAt,
+            logs
+        } = keyData;
 
-        let currentUsage = keyData.usageCount;
+        let todayHit = keyData.usageCount;
         if (hoursDiff >= 24) {
-            currentUsage = 0;
+            todayHit = 0;
         }
 
         res.json({
             status: true,
-            message: 'API key information retrieved successfully',
             data: {
-                keyId: keyData.keyId,
-                name: keyData.name,
-                email: keyData.email,
-                isActive: keyData.isActive,
-                usageCount: currentUsage,
-                dailyLimit: keyData.dailyLimit,
-                remaining: keyData.dailyLimit - currentUsage,
-                lastUsed: keyData.lastUsed,
-                createdAt: keyData.createdAt
+                apikey,
+                plan,
+                limit: limit - currentUsage,
+                name,
+                number,
+                email,
+                isActive,
+                isAdmin,
+                todayHit,
+                totalHit,
+                createdAt,
+                logs
             }
         });
     } catch (error) {
-        console.error('Check API key error:', error);
+        console.error('Error in /apikey/check route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to check API key'
+            message: 'Failed to check Apikey'
         });
     }
 });
@@ -177,17 +210,31 @@ app.get('/apikey/check', async (req, res) => {
 // Delete API Key
 app.delete('/apikey/delete', async (req, res) => {
     try {
-        const { apikey, email } = req.body;
+        const {
+            apikey,
+            number,
+            email
+        } = req.body;
         
-        if (!apikey && !email) {
-            return res.status(400).json({
+        if (!apikey) {
+            res.status(400).json({
                 status: false,
-                message: 'API key or email is required'
+                message: 'Apikey Required'
+            });
+        } else if (!number) {
+            res.status(400).json({
+                status: false,
+                message: 'Number Required'
+            });
+        } else if (!email) {
+            res.status(400).json({
+                status: false,
+                message: 'Email Required'
             });
         }
 
         let query = {};
-        if (apikey) query.apiKey = apikey;
+        if (apikey) query.apikey = apikey;
         if (email) query.email = email;
 
         const deletedKey = await ApiKey.findOneAndDelete(query);
@@ -195,24 +242,31 @@ app.delete('/apikey/delete', async (req, res) => {
         if (!deletedKey) {
             return res.status(404).json({
                 status: false,
-                message: 'API key not found'
+                message: 'Apikey Not Found'
             });
         }
+        
+        const {
+            apikey,
+            name,
+            number,
+            email
+        } = deletedKey;
 
         res.json({
             status: true,
-            message: 'API key deleted successfully',
             data: {
-                keyId: deletedKey.keyId,
-                name: deletedKey.name,
-                email: deletedKey.email
+                apikey,
+                name,
+                number,
+                email
             }
         });
     } catch (error) {
-        console.error('Delete API key error:', error);
+        console.error('Error in /apikey/delete route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to delete API key'
+            message: 'Failed to delete Apikey'
         });
     }
 });
@@ -223,28 +277,32 @@ app.get('/apikey/list', async (req, res) => {
         const { adminKey } = req.query;
         
         // Simple admin key check (you should implement proper admin authentication)
-        if (adminKey !== process.env.ADMIN_KEY) {
-            return res.status(403).json({
+        if (!adminKey) {
+            res.status(400).json({
+                status: false,
+                message: 'Admin Acces Required'
+            });
+        } else if (adminKey !== 'admkey') {
+            res.status(403).json({
                 status: false,
                 message: 'Admin access required'
             });
         }
 
         const apiKeys = await ApiKey.find({}, {
-            apiKey: 0 // Don't return actual API keys
+            apikey: 0 // Don't return actual API keys
         }).sort({ createdAt: -1 });
 
         res.json({
             status: true,
-            message: 'API keys retrieved successfully',
-            data: apiKeys,
-            total: apiKeys.length
+            total: apiKeys.length,
+            data: apiKeys
         });
     } catch (error) {
-        console.error('List API keys error:', error);
+        console.error('Error in /apikey/list route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to retrieve API keys'
+            message: 'Failed to retrieve Apikeys'
         });
     }
 });
