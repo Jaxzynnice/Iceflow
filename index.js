@@ -7,7 +7,11 @@ const multer = require('multer');
 const express = require('express');
 const mongoose = require('mongoose');
 const rl = require('./src/keySettings');
-const { ApiKey, secondRateLimiter, minuteRateLimiter } = require('./src/keySettings
+const {
+    ApiKey,
+    secondRateLimiter,
+    minuteRateLimiter
+} = require('./src/keySettings');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
