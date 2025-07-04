@@ -6,18 +6,21 @@ const crypto = require('crypto');
 const multer = require('multer');
 const express = require('express');
 const mongoose = require('mongoose');
-const rl = require('./src/keySettings');
 const {
     ApiKey,
+    generateApiKey,
+    validateApiKey,
+    requestLimiter,
     secondRateLimiter,
-    minuteRateLimiter
+    minuteRateLimiter,
+    globalRateLimiter
 } = require('./src/keySettings');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.en.PORT || 4000;
 
 // MongoDB connection
-mongoose.connect('mongodb+srv://Jaxzynnice:bSN7BN5mTIHeRD2Q@iceflow.acatmdn.mongodb.net/?retryWrites=true&w=majority&appName=Iceflow').then(() => {
+mongoose.connect('mongodb+srv://Jaxzynnice:bSN7BN5mTIHeRD2Q@iceflow.acatmdn.mongodb.net/icefloww?retryWrites=true&w=majority&appName=Iceflow').then(() => {
     console.log(chalk.bgHex('#90EE90').hex('#333').bold(' MongoDB Connected! ✓ '));
 }).catch(err => {
     console.error(chalk.bgHex('#FF6B6B').hex('#FFF').bold(' MongoDB Connection Error: '), err);
@@ -28,112 +31,19 @@ app.set("json spaces", 2);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
-app.use(rl.requestLimiter);
-app.use(rl.globalRateLimiter);
 app.use('/', express.static(path.join(__dirname, 'public')));
 app.use('/src', express.static(path.join(__dirname, 'src')));
 
 const settingsPath = path.join(__dirname, './src/routers.json');
 const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
 
-// URLs yang dikecualikan dari validasi API key
-const excludedPaths = [
-    '/',
-    '/apikey/create',
-    '/apikey/check',
-    '/apikey/delete',
-    '/docs',
-    '/health'
-];
-
-// Fungsi untuk generate API key
-function generateApiKey() {
-    const keyId = crypto.randomBytes(8).toString('hex');
-    const apiKey = 'ak_' + crypto.randomBytes(32).toString('hex');
-    return { keyId, apiKey };
-}
-
-// Middleware untuk validasi API key
-const validateApiKey = async (req, res, next) => {
-    const requestPath = req.path;
-    
-    // Skip validasi untuk path yang dikecualikan
-    if (excludedPaths.includes(requestPath) || 
-        requestPath.startsWith('/public/') || 
-        requestPath.startsWith('/src/') ||
-        requestPath.includes('error')) {
-        return next();
-    }
-
-    const apiKey = req.query.apikey;
-    
-    if (!apiKey) {
-        return res.status(401).json({
-            status: false,
-            message: 'Apikey Required'
-        });
-    }
-
-    try {
-        const keyData = await ApiKey.findOne({ 
-            apiKey: apiKey, 
-            isActive: true 
-        });
-
-        if (!keyData) {
-            return res.status(401).json({
-                status: false,
-                message: 'Apikey Invalid'
-            });
-        }
-
-        // Reset daily usage jika sudah lewat 24 jam
-        const now = new Date();
-        const lastUsed = new Date(keyData.lastUsed);
-        const timeDiff = now.getTime() - lastUsed.getTime();
-        const hoursDiff = timeDiff / (1000 * 3600);
-
-        if (hoursDiff >= 24) {
-            keyData.usageCount = 0;
-        }
-
-        // Check daily limit
-        if (keyData.usageCount >= keyData.dailyLimit) {
-            return res.status(429).json({
-                status: false,
-                message: 'Apikey Limit Exceeded',
-                limit: keyData.dailyLimit,
-                used: keyData.usageCount
-            });
-        }
-
-        // Update usage count dan last used
-        await ApiKey.findByIdAndUpdate(keyData._id, {
-            $inc: { usageCount: 1 },
-            lastUsed: now
-        });
-
-        // Attach API key info to request
-        req.apiKeyInfo = {
-            keyId: keyData.keyId,
-            name: keyData.name,
-            email: keyData.email,
-            usageCount: keyData.usageCount + 1,
-            dailyLimit: keyData.dailyLimit
-        };
-
-        next();
-    } catch (error) {
-        console.error('API Key validation error:', error);
-        return res.status(500).json({
-            status: false,
-            message: error.message
-        });
-    }
-};
-
+// Key Settings
 // Apply API key validation middleware
 app.use(validateApiKey);
+app.use(requestLimiter);
+app.use(secondRateLimiter);
+app.use(minuteRateLimiter);
+app.use(globalRateLimiter);
 
 // Enhanced response middleware
 app.use((req, res, next) => {
@@ -154,7 +64,6 @@ app.use((req, res, next) => {
 });
 
 // API Key Management Endpoints
-
 // Create API Key
 app.post('/apikey/create', async (req, res) => {
     try {
