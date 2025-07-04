@@ -4,18 +4,25 @@ const rateLimit = require('express-rate-limit');
 
 // API Key Schema
 const apiKeySchema = new mongoose.Schema({
-    keyId: {
-        type: String,
-        required: true,
-        unique: true
-    },
     apiKey: {
         type: String,
         required: true,
         unique: true
     },
+    limit: {
+        type: Number,
+        default: 10
+    },
+    plan: {
+        type: String,
+        required: true
+    },
     name: {
         type: String,
+        required: true
+    },
+    number: {
+        type: Number,
         required: true
     },
     email: {
@@ -26,25 +33,131 @@ const apiKeySchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    usageCount: {
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
+    todayHit: {
         type: Number,
         default: 0
     },
-    dailyLimit: {
+    totalHit: {
         type: Number,
-        default: 1000
-    },
-    lastUsed: {
-        type: Date,
-        default: Date.now
+        default: 0
     },
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    logs: {
+        ipAddress:{
+            type: Number,
+            
+        },
+        lastUsed: {
+            type: Date,
+            default: Date.now
+        }
     }
 });
 
 const ApiKey = mongoose.models.ApiKey || mongoose.model('ApiKey', apiKeySchema);
+
+// URLs yang dikecualikan dari validasi API key
+const excludedPaths = [
+    '/',
+    '/apikey/create',
+    '/apikey/check',
+    '/apikey/delete',
+    '/docs',
+    '/health'
+];
+
+// Fungsi untuk generate API key
+function generateApiKey() {
+    const keyId = crypto.randomBytes(8).toString('hex');
+    const apiKey = 'ak_' + crypto.randomBytes(32).toString('hex');
+    return { keyId, apiKey };
+}
+
+// Middleware untuk validasi API key
+const validateApiKey = async (req, res, next) => {
+    const requestPath = req.path;
+    
+    // Skip validasi untuk path yang dikecualikan
+    if (excludedPaths.includes(requestPath) || 
+        requestPath.startsWith('/public/') || 
+        requestPath.startsWith('/src/') ||
+        requestPath.includes('error')) {
+        return next();
+    }
+
+    const apiKey = req.query.apikey;
+    
+    if (!apiKey) {
+        return res.status(401).json({
+            status: false,
+            message: 'Apikey Required'
+        });
+    }
+
+    try {
+        const keyData = await ApiKey.findOne({ 
+            apiKey: apiKey, 
+            isActive: true 
+        });
+
+        if (!keyData) {
+            return res.status(401).json({
+                status: false,
+                message: 'Apikey Invalid'
+            });
+        }
+
+        // Reset daily usage jika sudah lewat 24 jam
+        const now = new Date();
+        const lastUsed = new Date(keyData.lastUsed);
+        const timeDiff = now.getTime() - lastUsed.getTime();
+        const hoursDiff = timeDiff / (1000 * 3600);
+
+        if (hoursDiff >= 24) {
+            keyData.usageCount = 0;
+        }
+
+        // Check daily limit
+        if (keyData.usageCount >= keyData.dailyLimit) {
+            return res.status(429).json({
+                status: false,
+                message: 'Apikey Limit Exceeded',
+                limit: keyData.dailyLimit,
+                used: keyData.usageCount
+            });
+        }
+
+        // Update usage count dan last used
+        await ApiKey.findByIdAndUpdate(keyData._id, {
+            $inc: { usageCount: 1 },
+            lastUsed: now
+        });
+
+        // Attach API key info to request
+        req.apiKeyInfo = {
+            keyId: keyData.keyId,
+            name: keyData.name,
+            email: keyData.email,
+            usageCount: keyData.usageCount + 1,
+            dailyLimit: keyData.dailyLimit
+        };
+
+        next();
+    } catch (error) {
+        console.error('API Key validation error:', error);
+        return res.status(500).json({
+            status: false,
+            message: error.message
+        });
+    }
+};
 
 const globalRateLimiter = rateLimit({
     windowMs: 24 * 60 * 60 * 1000,
@@ -91,8 +204,10 @@ const requestLimiter = (req, res, next) => {
 
 module.exports = {
     ApiKey,
+    generateApiKey,
+    validateApiKey,
     requestLimiter,
-    globalRateLimiter,
     secondRateLimiter,
-    minuteRateLimiter
+    minuteRateLimiter,
+    globalRateLimiter
 };
