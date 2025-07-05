@@ -8,7 +8,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const {
     ApiKey,
+    PLANS,
+    TIME_UNITS,
     defaultKey,
+    createApiKey,
     validateApiKey,
     requestLimiter,
     secondRateLimiter,
@@ -20,11 +23,13 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // MongoDB connection
-mongoose.connect('mongodb+srv://Jaxzynnice:bSN7BN5mTIHeRD2Q@iceflow.acatmdn.mongodb.net/icefloww?retryWrites=true&w=majority&appName=Iceflow').then(() => {
-    console.log(chalk.bgHex('#90EE90').hex('#333').bold(' MongoDB Connected! ✓ '));
-}).catch(err => {
-    console.error(chalk.bgHex('#FF6B6B').hex('#FFF').bold(' MongoDB Connection Error: '), err);
-});
+mongoose.connect('mongodb+srv://Jaxzynnice:bSN7BN5mTIHeRD2Q@iceflow.acatmdn.mongodb.net/icefloww?retryWrites=true&w=majority&appName=Iceflow')
+    .then(() => {
+        console.log(chalk.bgHex('#90EE90').hex('#333').bold(' MongoDB Connected! ✓ '));
+    })
+    .catch(err => {
+        console.error(chalk.bgHex('#FF6B6B').hex('#FFF').bold(' MongoDB Connection Error: '), err);
+    });
 
 app.enable("trust proxy");
 app.set("json spaces", 2);
@@ -37,13 +42,9 @@ app.use('/src', express.static(path.join(__dirname, 'src')));
 const settingsPath = path.join(__dirname, '/src/routers.json');
 const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
 
-// Key Settings
-// Apply API key validation middleware
-app.use(validateApiKey);
+// Apply middleware
 app.use(requestLimiter);
-app.use(secondRateLimiter);
-app.use(minuteRateLimiter);
-app.use(globalRateLimiter);
+app.use(validateApiKey);
 
 // Enhanced response middleware
 app.use((req, res, next) => {
@@ -51,10 +52,21 @@ app.use((req, res, next) => {
     res.json = function (data) {
         if (data && typeof data === 'object') {
             const responseData = {
-                status: data.status,
+                status: data.status !== undefined ? data.status : true,
                 creator: settings.apiSettings.creator,
+                timestamp: new Date().toISOString(),
                 ...data
             };
+            
+            // Add API key info to response if available
+            if (req.apiKeyInfo && data.status !== false) {
+                responseData.rateLimit = {
+                    remaining: req.apiKeyInfo.rateLimit.remainingLimit,
+                    resetTime: req.apiKeyInfo.rateLimit.resetTime,
+                    limit: req.apiKeyInfo.rateLimit.limit,
+                    timeUnit: req.apiKeyInfo.rateLimit.timeUnit
+                };
+            }
             
             return originalJson.call(this, responseData);
         }
@@ -64,48 +76,71 @@ app.use((req, res, next) => {
 });
 
 // API Key Management Endpoints
+
 // Create API Key
 app.post('/apikey/create', async (req, res) => {
     try {
         const {
-            apikey,
-            plan,
+            plan = 'FREE',
             limit,
+            timeUnit,
             name,
             number,
             email
         } = req.body;
         
+        // Validation
         if (!name) {
-            res.status(400).json({
+            return res.status(400).json({
                 status: false,
-                message: 'Name Required'
+                message: 'Name is required'
             });
-        } else if (!number) {
-            res.status(400).json({
+        }
+        
+        if (!number) {
+            return res.status(400).json({
                 status: false,
-                message: 'Number Required'
+                message: 'Number is required'
             });
-        } else if (!email) {
-            res.status(400).json({
+        }
+        
+        if (!email) {
+            return res.status(400).json({
                 status: false,
-                message: 'Email Required'
+                message: 'Email is required'
             });
         }
 
         // Check if email already exists
         const existingKey = await ApiKey.findOne({ email });
         if (existingKey) {
-            res.status(409).json({
+            return res.status(409).json({
                 status: false,
-                message: 'Apikey already exists for this email'
+                message: 'API Key already exists for this email'
             });
         }
+
+        // Validate plan
+        if (!PLANS[plan]) {
+            return res.status(400).json({
+                status: false,
+                message: 'Invalid plan. Available plans: ' + Object.keys(PLANS).join(', ')
+            });
+        }
+
+        // Validate timeUnit if provided
+        if (timeUnit && !TIME_UNITS[timeUnit]) {
+            return res.status(400).json({
+                status: false,
+                message: 'Invalid time unit. Available units: ' + Object.keys(TIME_UNITS).join(', ')
+            });
+        }
+
+        // Create API key data
+        const keyData = createApiKey(plan, limit, timeUnit);
         
         const newApiKey = new ApiKey({
-            apikey: apikey || defaultKey(),
-            plan: plan || 'FREE',
-            limit: limit || '1000',
+            ...keyData,
             name,
             number,
             email
@@ -113,15 +148,20 @@ app.post('/apikey/create', async (req, res) => {
 
         await newApiKey.save();
 
+        const planInfo = newApiKey.getPlanInfo();
+
         res.status(201).json({
             status: true,
+            message: 'API Key created successfully',
             data: {
                 apikey: newApiKey.apikey,
                 plan: newApiKey.plan,
-                limit: newApiKey.limit,
-                name,
-                number,
-                email,
+                planInfo,
+                user: {
+                    name,
+                    number,
+                    email
+                },
                 createdAt: newApiKey.createdAt
             }
         });
@@ -129,7 +169,8 @@ app.post('/apikey/create', async (req, res) => {
         console.error('Error in /apikey/create route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to create Apikey'
+            message: 'Failed to create API Key',
+            error: error.message
         });
     }
 });
@@ -140,9 +181,9 @@ app.get('/apikey/check', async (req, res) => {
         const { apikey } = req.query;
         
         if (!apikey) {
-            res.status(400).json({
+            return res.status(400).json({
                 status: false,
-                message: 'Apikey Required'
+                message: 'API Key is required'
             });
         }
 
@@ -151,56 +192,133 @@ app.get('/apikey/check', async (req, res) => {
         if (!keyData) {
             return res.status(404).json({
                 status: false,
-                message: 'Apikey Not Found'
+                message: 'API Key not found'
             });
         }
 
-        // Reset daily usage jika sudah lewat 24 jam
-        const now = new Date();
-        const lastUsed = new Date(keyData.lastUsed);
-        const timeDiff = now.getTime() - lastUsed.getTime();
-        const hoursDiff = timeDiff / (1000 * 3600);
+        // Check plan expiration
+        keyData.checkPlanExpiration();
         
-        const {
-            plan,
-            limit,
-            name,
-            number,
-            email,
-            isActive,
-            isAdmin,
-            totalHit,
-            createdAt,
-            logs
-        } = keyData;
-
-        let todayHit = keyData.todayHit;
-        if (hoursDiff >= 24) {
-            todayHit = 0;
-        }
+        // Get current plan info
+        const planInfo = keyData.getPlanInfo();
 
         res.json({
             status: true,
+            message: 'API Key information retrieved successfully',
             data: {
                 apikey: keyData.apikey,
-                plan,
-                limit: limit - currentUsage,
-                name,
-                number,
-                email,
-                isActive,
-                isAdmin,
-                todayHit,
-                totalHit,
-                createdAt,
-                logs
+                user: {
+                    name: keyData.name,
+                    number: keyData.number,
+                    email: keyData.email
+                },
+                planInfo,
+                usage: {
+                    todayHit: keyData.todayHit,
+                    totalHit: keyData.totalHit,
+                    lastUsed: keyData.logs.lastUsed
+                },
+                status: {
+                    isActive: keyData.isActive,
+                    isAdmin: keyData.isAdmin
+                },
+                logs: {
+                    recentRequests: keyData.logs.recentRequests.slice(0, 5), // Show only last 5 requests
+                    dailyResetAt: keyData.logs.dailyResetAt
+                },
+                timestamps: {
+                    createdAt: keyData.createdAt,
+                    updatedAt: keyData.updatedAt
+                }
             }
         });
     } catch (error) {
         console.error('Error in /apikey/check route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to check Apikey'
+            message: 'Failed to check API Key',
+            error: error.message
+        });
+    }
+});
+
+// Update API Key Plan
+app.put('/apikey/update', async (req, res) => {
+    try {
+        const { apikey, plan, limit, timeUnit } = req.body;
+        
+        if (!apikey) {
+            return res.status(400).json({
+                status: false,
+                message: 'API Key is required'
+            });
+        }
+
+        const keyData = await ApiKey.findOne({ apikey });
+        
+        if (!keyData) {
+            return res.status(404).json({
+                status: false,
+                message: 'API Key not found'
+            });
+        }
+
+        // Update plan if provided
+        if (plan) {
+            if (!PLANS[plan]) {
+                return res.status(400).json({
+                    status: false,
+                    message: 'Invalid plan. Available plans: ' + Object.keys(PLANS).join(', ')
+                });
+            }
+            
+            const planConfig = PLANS[plan];
+            keyData.plan = plan;
+            keyData.limit = limit || planConfig.defaultLimit;
+            keyData.timeUnit = timeUnit || planConfig.defaultTimeUnit;
+            
+            // Set expiration for premium plans
+            if (planConfig.hasExpiration) {
+                const now = new Date();
+                const expirationDate = new Date(now);
+                expirationDate.setDate(expirationDate.getDate() + planConfig.expirationDays);
+                
+                keyData.planExpiration.expiresAt = expirationDate;
+                keyData.planExpiration.isExpired = false;
+            } else {
+                keyData.planExpiration.expiresAt = null;
+                keyData.planExpiration.isExpired = false;
+            }
+            
+            // Reset rate limit data
+            keyData.rateLimitData.currentUsage = 0;
+            keyData.rateLimitData.windowStart = new Date();
+            keyData.rateLimitData.lastReset = new Date();
+        }
+
+        // Update individual fields if provided
+        if (limit !== undefined) keyData.limit = limit;
+        if (timeUnit && TIME_UNITS[timeUnit]) keyData.timeUnit = timeUnit;
+
+        await keyData.save();
+
+        const planInfo = keyData.getPlanInfo();
+
+        res.json({
+            status: true,
+            message: 'API Key updated successfully',
+            data: {
+                apikey: keyData.apikey,
+                planInfo,
+                updatedAt: keyData.updatedAt
+            }
+        });
+    } catch (error) {
+        console.error('Error in /apikey/update route:', error);
+        res.status(500).json({
+            status: false,
+            message: 'Failed to update API Key',
+            error: error.message
         });
     }
 });
@@ -208,26 +326,12 @@ app.get('/apikey/check', async (req, res) => {
 // Delete API Key
 app.delete('/apikey/delete', async (req, res) => {
     try {
-        const {
-            apikey,
-            number,
-            email
-        } = req.body;
+        const { apikey, number, email } = req.body;
         
-        if (!apikey) {
-            res.status(400).json({
+        if (!apikey && !number && !email) {
+            return res.status(400).json({
                 status: false,
-                message: 'Apikey Required'
-            });
-        } else if (!number) {
-            res.status(400).json({
-                status: false,
-                message: 'Number Required'
-            });
-        } else if (!email) {
-            res.status(400).json({
-                status: false,
-                message: 'Email Required'
+                message: 'At least one identifier is required (apikey, number, or email)'
             });
         }
 
@@ -241,23 +345,28 @@ app.delete('/apikey/delete', async (req, res) => {
         if (!deletedKey) {
             return res.status(404).json({
                 status: false,
-                message: 'Apikey Not Found'
+                message: 'API Key not found'
             });
         }
 
         res.json({
             status: true,
+            message: 'API Key deleted successfully',
             data: {
                 apikey: deletedKey.apikey,
-                number: deletedKey.number,
-                email: deletedKey.email
+                user: {
+                    name: deletedKey.name,
+                    number: deletedKey.number,
+                    email: deletedKey.email
+                }
             }
         });
     } catch (error) {
         console.error('Error in /apikey/delete route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to delete Apikey'
+            message: 'Failed to delete API Key',
+            error: error.message
         });
     }
 });
@@ -265,37 +374,100 @@ app.delete('/apikey/delete', async (req, res) => {
 // List all API Keys (Admin endpoint)
 app.get('/apikey/list', async (req, res) => {
     try {
-        const { adminKey } = req.query;
+        const { adminKey, page = 1, limit = 10 } = req.query;
         
-        // Simple admin key check (you should implement proper admin authentication)
-        if (!adminKey) {
-            res.status(400).json({
-                status: false,
-                message: 'Admin Acces Required'
-            });
-        } else if (adminKey !== 'admkey') {
-            res.status(403).json({
+        if (!adminKey || adminKey !== 'admkey') {
+            return res.status(403).json({
                 status: false,
                 message: 'Admin access required'
             });
         }
 
-        const apiKeys = await ApiKey.find({}, {
-            apikey: 0 // Don't return actual API keys
-        }).sort({ createdAt: -1 });
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const total = await ApiKey.countDocuments();
+        
+        const apiKeys = await ApiKey.find({})
+            .select('-logs.recentRequests') // Exclude detailed logs for performance
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        // Process each key to get plan info
+        const processedKeys = apiKeys.map(key => {
+            key.checkPlanExpiration();
+            const planInfo = key.getPlanInfo();
+            
+            return {
+                apikey: key.apikey,
+                user: {
+                    name: key.name,
+                    number: key.number,
+                    email: key.email
+                },
+                planInfo,
+                usage: {
+                    todayHit: key.todayHit,
+                    totalHit: key.totalHit,
+                    lastUsed: key.logs.lastUsed
+                },
+                status: {
+                    isActive: key.isActive,
+                    isAdmin: key.isAdmin
+                },
+                timestamps: {
+                    createdAt: key.createdAt,
+                    updatedAt: key.updatedAt
+                }
+            };
+        });
 
         res.json({
             status: true,
-            total: apiKeys.length,
-            data: apiKeys
+            message: 'API Keys retrieved successfully',
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                totalPages: Math.ceil(total / parseInt(limit))
+            },
+            data: processedKeys
         });
     } catch (error) {
         console.error('Error in /apikey/list route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to retrieve Apikeys'
+            message: 'Failed to retrieve API Keys',
+            error: error.message
         });
     }
+});
+
+// Get available plans
+app.get('/apikey/plans', (req, res) => {
+    const planInfo = Object.keys(PLANS).map(planKey => {
+        const plan = PLANS[planKey];
+        return {
+            key: planKey,
+            name: plan.name,
+            defaultLimit: plan.defaultLimit,
+            defaultTimeUnit: plan.defaultTimeUnit,
+            hasExpiration: plan.hasExpiration,
+            expirationDays: plan.expirationDays,
+            features: plan.features
+        };
+    });
+
+    res.json({
+        status: true,
+        message: 'Available plans retrieved successfully',
+        data: {
+            plans: planInfo,
+            timeUnits: Object.keys(TIME_UNITS).map(key => ({
+                key,
+                label: TIME_UNITS[key].label
+            }))
+        }
+    });
 });
 
 // Health check endpoint
@@ -304,45 +476,180 @@ app.get('/health', (req, res) => {
         status: true,
         message: 'API is running',
         timestamp: new Date().toISOString(),
-        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+        mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        uptime: process.uptime(),
+        version: '2.0.0'
     });
 });
 
-// Api Route
+// Load API routes
 let totalRoutes = 0;
 const apiFolder = path.join(__dirname, './src/api/categories');
-fs.readdirSync(apiFolder).forEach((subfolder) => {
-    const subfolderPath = path.join(apiFolder, subfolder);
-    if (fs.statSync(subfolderPath).isDirectory()) {
-        fs.readdirSync(subfolderPath).forEach((file) => {
-            const filePath = path.join(subfolderPath, file);
-            if (path.extname(file) === '.js') {
-                require(filePath)(app);
-                totalRoutes++;
-                console.log(chalk.bgHex('#FFFF99').hex('#333').bold(` Loaded Route: ${path.basename(file)} `));
-            }
-        });
-    }
-});
+
+// Check if API folder exists
+if (fs.existsSync(apiFolder)) {
+    fs.readdirSync(apiFolder).forEach((subfolder) => {
+        const subfolderPath = path.join(apiFolder, subfolder);
+        if (fs.statSync(subfolderPath).isDirectory()) {
+            fs.readdirSync(subfolderPath).forEach((file) => {
+                const filePath = path.join(subfolderPath, file);
+                if (path.extname(file) === '.js') {
+                    try {
+                        require(filePath)(app);
+                        totalRoutes++;
+                        console.log(chalk.bgHex('#FFFF99').hex('#333').bold(` Loaded Route: ${path.basename(file)} `));
+                    } catch (error) {
+                        console.error(chalk.bgHex('#FF6B6B').hex('#FFF').bold(` Error loading ${file}: `), error.message);
+                    }
+                }
+            });
+        }
+    });
+} else {
+    console.log(chalk.bgHex('#FFA500').hex('#333').bold(' API folder not found, skipping route loading '));
+}
 
 console.log(chalk.bgHex('#90EE90').hex('#333').bold(' Load Complete! ✓ '));
 console.log(chalk.bgHex('#90EE90').hex('#333').bold(` Total Routes Loaded: ${totalRoutes} `));
 
+// Root endpoint
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// API documentation endpoint
+app.get('/docs', (req, res) => {
+    const documentation = {
+        title: "API Documentation",
+        version: "2.0.0",
+        baseUrl: `${req.protocol}://${req.get('host')}`,
+        endpoints: {
+            "API Key Management": {
+                "POST /apikey/create": {
+                    description: "Create a new API key",
+                    parameters: {
+                        name: "User name (required)",
+                        number: "Phone number (required)",
+                        email: "Email address (required)",
+                        plan: "Plan type (FREE, PREMIUM, VVIP) - default: FREE",
+                        limit: "Custom limit (optional)",
+                        timeUnit: "Time unit (second, minute, hour, day) - optional"
+                    }
+                },
+                "GET /apikey/check": {
+                    description: "Check API key information",
+                    parameters: {
+                        apikey: "API key to check (required)"
+                    }
+                },
+                "PUT /apikey/update": {
+                    description: "Update API key plan or settings",
+                    parameters: {
+                        apikey: "API key to update (required)",
+                        plan: "New plan (optional)",
+                        limit: "New limit (optional)",
+                        timeUnit: "New time unit (optional)"
+                    }
+                },
+                "DELETE /apikey/delete": {
+                    description: "Delete an API key",
+                    parameters: {
+                        apikey: "API key to delete (optional)",
+                        number: "Phone number (optional)",
+                        email: "Email address (optional)"
+                    }
+                },
+                "GET /apikey/list": {
+                    description: "List all API keys (Admin only)",
+                    parameters: {
+                        adminKey: "Admin key (required)",
+                        page: "Page number (default: 1)",
+                        limit: "Items per page (default: 10)"
+                    }
+                },
+                "GET /apikey/plans": {
+                    description: "Get available plans and time units",
+                    parameters: "None"
+                }
+            },
+            "System": {
+                "GET /health": {
+                    description: "Health check endpoint",
+                    parameters: "None"
+                }
+            }
+        },
+        plans: PLANS,
+        timeUnits: TIME_UNITS,
+        rateLimit: {
+            global: "100,000 requests per day",
+            minute: "60 requests per minute",
+            second: "10 requests per second"
+        }
+    };
+
+    res.json({
+        status: true,
+        message: "API Documentation",
+        data: documentation
+    });
+});
+
+// 404 handler
 app.use((req, res, next) => {
-    res.status(404).sendFile(process.cwd() + "/public/error/404.html");
+    const errorPath = path.join(__dirname, 'public', 'error', '404.html');
+    if (fs.existsSync(errorPath)) {
+        res.status(404).sendFile(errorPath);
+    } else {
+        res.status(404).json({
+            status: false,
+            message: 'Endpoint not found',
+            error: 'NOT_FOUND',
+            path: req.path,
+            method: req.method
+        });
+    }
 });
 
+// Error handler
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).sendFile(process.cwd() + "/public/error/500.html");
+    console.error('Server Error:', err.stack);
+    
+    const errorPath = path.join(__dirname, 'public', 'error', '500.html');
+    if (fs.existsSync(errorPath)) {
+        res.status(500).sendFile(errorPath);
+    } else {
+        res.status(500).json({
+            status: false,
+            message: 'Internal Server Error',
+            error: 'INTERNAL_ERROR',
+            ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+        });
+    }
 });
 
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    console.log(chalk.bgHex('#FFA500').hex('#333').bold(' Received SIGTERM, shutting down gracefully '));
+    mongoose.connection.close(() => {
+        console.log(chalk.bgHex('#90EE90').hex('#333').bold(' MongoDB connection closed '));
+        process.exit(0);
+    });
+});
+
+process.on('SIGINT', () => {
+    console.log(chalk.bgHex('#FFA500').hex('#333').bold(' Received SIGINT, shutting down gracefully '));
+    mongoose.connection.close(() => {
+        console.log(chalk.bgHex('#90EE90').hex('#333').bold(' MongoDB connection closed '));
+        process.exit(0);
+    });
+});
+
+// Start server
 app.listen(PORT, () => {
     console.log(chalk.bgHex('#90EE90').hex('#333').bold(` Server is running on port ${PORT} `));
+    console.log(chalk.bgHex('#87CEEB').hex('#333').bold(` Health check: http://localhost:${PORT}/health `));
+    console.log(chalk.bgHex('#87CEEB').hex('#333').bold(` Documentation: http://localhost:${PORT}/docs `));
 });
 
 module.exports = app;
