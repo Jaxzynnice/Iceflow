@@ -355,17 +355,23 @@ const validateApiKey = async (req, res, next) => {
         requestPath.includes('error') ||
         requestPath.includes('.css') ||
         requestPath.includes('.js') ||
-        requestPath.includes('.ico')) {
+        requestPath.includes('.ico')) ||
+        requestPath.includes('/')) ||
+        requestPath.includes('/apikey/create')) ||
+        requestPath.includes('/apikey/check')) ||
+        requestPath.includes('/apikey/list')) ||
+        requestPath.includes('/apikey/delete')) ||
+        requestPath.includes('/docs')) ||
+        requestPath.includes('/health')) {
         return next();
     }
 
     const apiKey = req.query.apikey;
     
     if (!apiKey) {
-        return res.status(401).json({
+        res.status(401).json({
             status: false,
-            message: 'API Key Required',
-            error: 'MISSING_API_KEY'
+            message: 'Apikey Required',
         });
     }
 
@@ -376,10 +382,9 @@ const validateApiKey = async (req, res, next) => {
         });
 
         if (!keyData) {
-            return res.status(401).json({
+            res.status(401).json({
                 status: false,
-                message: 'Invalid API Key',
-                error: 'INVALID_API_KEY'
+                message: 'Apikey Invalid',
             });
         }
 
@@ -390,10 +395,8 @@ const validateApiKey = async (req, res, next) => {
         const rateLimitResult = keyData.checkRateLimit();
         
         if (rateLimitResult.isLimitExceeded) {
-            return res.status(429).json({
+            res.status(429).json({
                 status: false,
-                message: `Rate limit exceeded. Limit: ${rateLimitResult.limit} ${TIME_UNITS[rateLimitResult.timeUnit].label}`,
-                error: 'RATE_LIMIT_EXCEEDED',
                 rateLimit: {
                     limit: rateLimitResult.limit,
                     remaining: rateLimitResult.remainingLimit,
@@ -422,11 +425,10 @@ const validateApiKey = async (req, res, next) => {
 
         next();
     } catch (error) {
-        console.error('API Key validation error:', error);
+        console.error('Error in Apikey validation:', error);
         return res.status(500).json({
             status: false,
-            message: 'Internal Server Error',
-            error: 'VALIDATION_ERROR'
+            message: 'Internal Server Error'
         });
     }
 };
@@ -439,8 +441,7 @@ const globalRateLimiter = rateLimit({
     legacyHeaders: false,
     message: {
         status: false,
-        message: 'Too many requests from this IP. Please try again later.',
-        error: 'GLOBAL_RATE_LIMIT'
+        message: 'Too many requests from this IP. Please try again later.'
     }
 });
 
@@ -451,8 +452,7 @@ const minuteRateLimiter = rateLimit({
     legacyHeaders: false,
     message: {
         status: false,
-        message: 'Too many requests per minute. Please wait.',
-        error: 'MINUTE_RATE_LIMIT'
+        message: 'Too many requests per minute. Please wait.'
     }
 });
 
@@ -463,8 +463,7 @@ const secondRateLimiter = rateLimit({
     legacyHeaders: false,
     message: {
         status: false,
-        message: 'Too many requests per second. Please slow down.',
-        error: 'SECOND_RATE_LIMIT'
+        message: 'Too many requests per second. Please slow down.'
     }
 });
 
