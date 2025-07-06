@@ -31,8 +31,8 @@ mongoose.connect('mongodb+srv://Jaxzynnice:bSN7BN5mTIHeRD2Q@iceflow.acatmdn.mong
         console.error(chalk.bgHex('#FF6B6B').hex('#FFF').bold(' MongoDB Connection Error: '), err);
     });
 
-app.enable("trust proxy");
-app.set("json spaces", 2);
+app.enable('trust proxy', false);
+app.set('json spaces', 2);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
@@ -54,19 +54,8 @@ app.use((req, res, next) => {
             const responseData = {
                 status: data.status !== undefined ? data.status : true,
                 creator: settings.apiSettings.creator,
-                timestamp: new Date().toISOString(),
                 ...data
             };
-            
-            // Add API key info to response if available
-            if (req.apiKeyInfo && data.status !== false) {
-                responseData.rateLimit = {
-                    remaining: req.apiKeyInfo.rateLimit.remainingLimit,
-                    resetTime: req.apiKeyInfo.rateLimit.resetTime,
-                    limit: req.apiKeyInfo.rateLimit.limit,
-                    timeUnit: req.apiKeyInfo.rateLimit.timeUnit
-                };
-            }
             
             return originalJson.call(this, responseData);
         }
@@ -76,14 +65,13 @@ app.use((req, res, next) => {
 });
 
 // API Key Management Endpoints
-
 // Create API Key
 app.post('/apikey/create', async (req, res) => {
     try {
         const {
             plan = 'FREE',
-            limit,
             timeUnit,
+            limit,
             name,
             number,
             email
@@ -91,48 +79,44 @@ app.post('/apikey/create', async (req, res) => {
         
         // Validation
         if (!name) {
-            return res.status(400).json({
+            res.status(400).json({
                 status: false,
-                message: 'Name is required'
+                message: 'Name Required'
             });
-        }
-        
-        if (!number) {
-            return res.status(400).json({
+        } else if (!number) {
+            res.status(400).json({
                 status: false,
-                message: 'Number is required'
+                message: 'Number Required'
             });
-        }
-        
-        if (!email) {
-            return res.status(400).json({
+        } else if (!email) {
+            res.status(400).json({
                 status: false,
-                message: 'Email is required'
+                message: 'Email Required'
             });
         }
 
         // Check if email already exists
         const existingKey = await ApiKey.findOne({ email });
         if (existingKey) {
-            return res.status(409).json({
+            res.status(409).json({
                 status: false,
-                message: 'API Key already exists for this email'
+                message: 'Apikey already exists for this email'
             });
         }
 
         // Validate plan
         if (!PLANS[plan]) {
-            return res.status(400).json({
+            res.status(400).json({
                 status: false,
-                message: 'Invalid plan. Available plans: ' + Object.keys(PLANS).join(', ')
+                message: 'Plan Invalid. Available plans: ' + Object.keys(PLANS).join(', ')
             });
         }
 
         // Validate timeUnit if provided
         if (timeUnit && !TIME_UNITS[timeUnit]) {
-            return res.status(400).json({
+            res.status(400).json({
                 status: false,
-                message: 'Invalid time unit. Available units: ' + Object.keys(TIME_UNITS).join(', ')
+                message: 'Time Unit Invalid. Available units: ' + Object.keys(TIME_UNITS).join(', ')
             });
         }
 
@@ -152,7 +136,6 @@ app.post('/apikey/create', async (req, res) => {
 
         res.status(201).json({
             status: true,
-            message: 'API Key created successfully',
             data: {
                 apikey: newApiKey.apikey,
                 plan: newApiKey.plan,
@@ -169,8 +152,7 @@ app.post('/apikey/create', async (req, res) => {
         console.error('Error in /apikey/create route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to create API Key',
-            error: error.message
+            message: error.message
         });
     }
 });
@@ -181,18 +163,18 @@ app.get('/apikey/check', async (req, res) => {
         const { apikey } = req.query;
         
         if (!apikey) {
-            return res.status(400).json({
+            res.status(400).json({
                 status: false,
-                message: 'API Key is required'
+                message: 'Apikey Required'
             });
         }
 
         const keyData = await ApiKey.findOne({ apikey });
         
         if (!keyData) {
-            return res.status(404).json({
+            res.status(404).json({
                 status: false,
-                message: 'API Key not found'
+                message: 'Apikey Not Found'
             });
         }
 
@@ -204,7 +186,6 @@ app.get('/apikey/check', async (req, res) => {
 
         res.json({
             status: true,
-            message: 'API Key information retrieved successfully',
             data: {
                 apikey: keyData.apikey,
                 user: {
@@ -236,8 +217,7 @@ app.get('/apikey/check', async (req, res) => {
         console.error('Error in /apikey/check route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to check API Key',
-            error: error.message
+            message: error.message
         });
     }
 });
@@ -248,27 +228,27 @@ app.put('/apikey/update', async (req, res) => {
         const { apikey, plan, limit, timeUnit } = req.body;
         
         if (!apikey) {
-            return res.status(400).json({
+            res.status(400).json({
                 status: false,
-                message: 'API Key is required'
+                message: 'Apikey Required'
             });
         }
 
         const keyData = await ApiKey.findOne({ apikey });
         
         if (!keyData) {
-            return res.status(404).json({
+            res.status(404).json({
                 status: false,
-                message: 'API Key not found'
+                message: 'Apikey Not Found'
             });
         }
 
         // Update plan if provided
         if (plan) {
             if (!PLANS[plan]) {
-                return res.status(400).json({
+                res.status(400).json({
                     status: false,
-                    message: 'Invalid plan. Available plans: ' + Object.keys(PLANS).join(', ')
+                    message: 'Plan Invalid. Available plans: ' + Object.keys(PLANS).join(', ')
                 });
             }
             
@@ -306,7 +286,6 @@ app.put('/apikey/update', async (req, res) => {
 
         res.json({
             status: true,
-            message: 'API Key updated successfully',
             data: {
                 apikey: keyData.apikey,
                 planInfo,
@@ -317,8 +296,7 @@ app.put('/apikey/update', async (req, res) => {
         console.error('Error in /apikey/update route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to update API Key',
-            error: error.message
+            message: error.message
         });
     }
 });
@@ -329,7 +307,7 @@ app.delete('/apikey/delete', async (req, res) => {
         const { apikey, number, email } = req.body;
         
         if (!apikey && !number && !email) {
-            return res.status(400).json({
+            res.status(400).json({
                 status: false,
                 message: 'At least one identifier is required (apikey, number, or email)'
             });
@@ -343,15 +321,14 @@ app.delete('/apikey/delete', async (req, res) => {
         const deletedKey = await ApiKey.findOneAndDelete(query);
         
         if (!deletedKey) {
-            return res.status(404).json({
+            res.status(404).json({
                 status: false,
-                message: 'API Key not found'
+                message: 'Apikey Not Found'
             });
         }
 
         res.json({
             status: true,
-            message: 'API Key deleted successfully',
             data: {
                 apikey: deletedKey.apikey,
                 user: {
@@ -365,8 +342,7 @@ app.delete('/apikey/delete', async (req, res) => {
         console.error('Error in /apikey/delete route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to delete API Key',
-            error: error.message
+            message: error.message
         });
     }
 });
@@ -377,9 +353,9 @@ app.get('/apikey/list', async (req, res) => {
         const { adminKey, page = 1, limit = 10 } = req.query;
         
         if (!adminKey || adminKey !== 'admkey') {
-            return res.status(403).json({
+            res.status(403).json({
                 status: false,
-                message: 'Admin access required'
+                message: 'Admin Access Required'
             });
         }
 
@@ -423,7 +399,6 @@ app.get('/apikey/list', async (req, res) => {
 
         res.json({
             status: true,
-            message: 'API Keys retrieved successfully',
             pagination: {
                 page: parseInt(page),
                 limit: parseInt(limit),
@@ -436,8 +411,7 @@ app.get('/apikey/list', async (req, res) => {
         console.error('Error in /apikey/list route:', error);
         res.status(500).json({
             status: false,
-            message: 'Failed to retrieve API Keys',
-            error: error.message
+            message: error.message
         });
     }
 });
@@ -459,7 +433,6 @@ app.get('/apikey/plans', (req, res) => {
 
     res.json({
         status: true,
-        message: 'Available plans retrieved successfully',
         data: {
             plans: planInfo,
             timeUnits: Object.keys(TIME_UNITS).map(key => ({
@@ -475,10 +448,8 @@ app.get('/health', (req, res) => {
     res.json({
         status: true,
         message: 'API is running',
-        timestamp: new Date().toISOString(),
         mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
         uptime: process.uptime(),
-        version: '2.0.0'
     });
 });
 
@@ -603,8 +574,7 @@ app.use((req, res, next) => {
     } else {
         res.status(404).json({
             status: false,
-            message: 'Endpoint not found',
-            error: 'NOT_FOUND',
+            message: 'Endpoint Not Found',
             path: req.path,
             method: req.method
         });
@@ -622,7 +592,6 @@ app.use((err, req, res, next) => {
         res.status(500).json({
             status: false,
             message: 'Internal Server Error',
-            error: 'INTERNAL_ERROR',
             ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
         });
     }
