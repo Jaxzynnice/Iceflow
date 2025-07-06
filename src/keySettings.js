@@ -313,9 +313,8 @@ const excludedPaths = [
 
 // Fungsi untuk generate API key
 function defaultKey() {
-    const timestamp = Date.now().toString(36);
-    const random = crypto.randomBytes(4).toString('hex');
-    return `ice-${timestamp}-${random}`;
+    const random = crypto.randomBytes(5).toString('hex');
+    return `ice-${random}`;
 }
 
 // Fungsi untuk create API key dengan expiration
