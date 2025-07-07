@@ -354,13 +354,13 @@ const validateApiKey = async (req, res, next) => {
         requestPath.includes('error') ||
         requestPath.includes('.css') ||
         requestPath.includes('.js') ||
-        requestPath.includes('.ico')) ||
-        requestPath.includes('/')) ||
-        requestPath.includes('/apikey/create')) ||
-        requestPath.includes('/apikey/check')) ||
-        requestPath.includes('/apikey/list')) ||
-        requestPath.includes('/apikey/delete')) ||
-        requestPath.includes('/docs')) ||
+        requestPath.includes('.ico') ||
+        requestPath.includes('/') ||
+        requestPath.includes('/apikey/create') ||
+        requestPath.includes('/apikey/check') ||
+        requestPath.includes('/apikey/list') ||
+        requestPath.includes('/apikey/delete') ||
+        requestPath.includes('/docs') ||
         requestPath.includes('/health')) {
         return next();
     }
